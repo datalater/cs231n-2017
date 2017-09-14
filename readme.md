@@ -5,11 +5,29 @@
 
 ---
 
-## L02 Image classification
+## L03 Loss Functions and Optimization
+
+### 1) Loss
+
+loss란 우리가 만든 classifier가 얼마나 틀렸는지를 측정하는 개념이다.
+loss function은 loss를 구하는 공식을 말한다.
+이때 loss function으로 여러 가지 공식을 사용할 수 있다.
+중요한 점은 공식에 따라 loss를 다르게 측정한다는 것이다.
+classifier가 저지르는 실수에는 여러 종류가 있고, 문제의 특성에 따라 더 조심해야 하는 실수가 있을 것이다.
+용납할 수 없는 실수 A가 발생하지 않도록 하려면 실수 A가 발생할 때마다 더 큰 벌을 줘야 한다.
+예를 들어, 유죄인 사람을 무죄로 잘못 판결내리는 것도 나쁜 실수이지만 무죄인 사람을 유죄로 판결내리는 것은 훨씬 더 나쁜 실수이다.
+가령, loss 값에 제곱을 취한다는 것은 작은 실수보다 큰 실수일수록 더 큰 벌을 내린다는 뜻이다.
+
+`#inProgress : https://youtu.be/h7iBpEHGVNc?t=23m32s`
+
+---
+
+## L02 Image Classification
 
 ### 1) K-NN?
 
-classification이란 input 데이터와 label로 training을 한 다음 test data의 label을 예측하는 작업을 말한다.
+분류 classification이란 데이터가 어느 클래스에 속하는지 구분하는 문제이다.
+input 데이터와 label로 training을 한 다음 test data의 label을 예측한다.
 label을 분류하는 알고리즘으로 K-NN을 사용해보면 어떨까?
 K-NN은 input 데이터 포인트로부터 distance가 가장 근접한 점 K개 중에서 class가 더 많은 쪽으로 input 데이터를 분류하는 알고리즘이다.
 K-NN을 사용할 때 연구자는 k값은 몇으로 할지, distance는 어떤 기준으로 할지 문제상황마다 다르게 적용해야 한다.
@@ -31,7 +49,7 @@ input 데이터 `x`와 parameter `W`를 linear하게 결합하는 것이 linear 
 여기서 `W`는 weight를 나타내는 term으로서 input 데이터와 곱해져서 input 데이터의 정보를 담고 있는 값이다.
 가령, `W`가 1이면 모든 곱해지는 값을 그대로 담을 수 있다.
 `b`는 bias term으로서 training data가 특정 class에 집중되었을 경우 특정 class에 더 높은 vote 값이 나오도록 하는 값이다.
-예를 들어, training 데이터를 구성하는 cat\:dog\:ship 이미지의 비율이 6:2:2라면, 당연히 모델은 cat을 더 많이 예측하도록 보정해야 한다.
+예를 들어, training 데이터를 구성하는 cat : dog : ship 이미지의 비율이 6:2:2라면, 당연히 모델은 cat을 더 많이 예측하도록 보정해야 한다.
 
 ### 3) Example of linear classification
 
@@ -42,11 +60,13 @@ linear model `f(x) = Wx+b`를 input 데이터에 적용하려면 input 데이터
 `W` matrix는 input 이미지 모든 픽셀 수만큼 곱해줘야하므로 (?, 4)가 된다.
 `W` matrix의 row 수는 label을 구성하는 class 개수를 뜻하고 여기서는 cat, dog, ship 3종류만 있으므로 `W`의 shape는 (3, 4)가 된다.
 벡터 `b` 또한 각 class 개수만큼 필요하므로 (3, 1)이 된다.
-`W` matrix의 의미는 각 행마다 특정 class를 찾아내는 filter라고 보면 된다.
-`W` matrix에서 살구색 첫 번째 행은 cat에 대한 유사성(similarity) 점수를, 보라색 두 번째 행은 dog에 대한 유사성 점수를, 녹색 세 번째 행은 ship에 대한 유사성 점수를 매긴다.
+
+`W`의 개별 값들은 input image의 각 픽셀이 특정 class에 얼마나 영향을 미치는지 말해준다.
+행 단위로 보면 `W` matrix의 각 행은 특정 class를 찾아내는 filter인 셈이다.
+가령, 살구색 첫 번째 행은 cat에 대한 유사성(similarity) 점수를, 보라색 두 번째 행은 dog에 대한 유사성 점수를, 녹색 세 번째 행은 ship에 대한 유사성 점수를 매긴다.
 `W*x`의 값을 구한 후에는 training data의 bias를 더해서 각 class에 대한 vote 값을 구한다.
 
-### 4) linear classification as template matching
+### 4) linear classifier as template matching
 
 linear classification을 template matching의 관점에서 볼 수 있다.
 `W`의 행은 특정 class를 찾아내는 filter이므로 행을 구성하는 값을 픽셀 값으로 생각해서 하나의 이미지로 시각화할 수 있다.
@@ -55,7 +75,7 @@ linear classification을 template matching의 관점에서 볼 수 있다.
 
 ![ExampleOfLinearClassification-template](images/L02-example-of-image-classification-template.png)
 
-template 이미지를 보면 linear classifier가 training data를 이해하기 위해 뭘 하려고 하는지 알 수 있다.
+학습된 template 이미지를 보면 linear classifier가 training data를 이해하기 위해 뭘 하려고 하는지 알 수 있다.
 위 그림은 linear classifer가 모든 training data를 train한 이후이다.
 아래에 나온 template 이미지는 학습된 w matrix에서 10개의 class에 해당하는 각 row를 이미지로 시각화한 것이다.
 plane에 대한 template을 보면 가운데에 파란색 얼룩 같은 게 있고 파란색 배경을 갖고 있다.
@@ -71,16 +91,16 @@ linear classifier 입장에서 보면, 특정 class에 해당하는 training 이
 
 앞으로 배우게 될 neural network나 더 복잡한 모델에서는 하나의 class에 여러 개의 tempate을 학습시켜서 더 높은 정확도를 보인다.
 
-### 5) linear classification on high dimensional space
+### 5) linear classifier on high dimensional space
 
-linear classfier가 training data를 이해하기 위해 무엇을 하는지 template matching이 아니라 high dimensional space의 관점으로도 확인할 수 있다.
+linear classifier가 training data를 이해하기 위해 무엇을 하는지 template matching이 아니라 high dimensional space의 관점으로도 확인할 수 있다. space의 차원은 input image의 픽셀 수와 일치한다.
 
 ![ExampleOfLinearClassification-high-dimension](images/L02-example-of-image-classification-high-dimension.png)
 
 input 이미지를 high dimension space에서 하나의 포인트로 나타낼 수 있다.
 이 공간에서 linear classifier는 linear decision boundaries를 그어서, 한 class가 나머지 다른 class와 linear separtion 되도록 분리하는 역할을 한다.
 
-### 6) linear classification, when to fail
+### 6) linear classifier, when to fail
 
 ![L02-image-classification-fail.png](images/L02-image-classification-fail.png)
 
