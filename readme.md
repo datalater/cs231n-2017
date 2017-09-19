@@ -10,15 +10,83 @@
 ### 1) Loss
 
 loss란 우리가 만든 classifier가 얼마나 틀렸는지를 측정하는 개념이다.
-loss function은 loss를 구하는 공식을 말한다.
+loss 값은 loss function 공식을 정의해서 구한다.
 이때 loss function으로 여러 가지 공식을 사용할 수 있다.
 중요한 점은 공식에 따라 loss를 다르게 측정한다는 것이다.
-classifier가 저지르는 실수에는 여러 종류가 있고, 문제의 특성에 따라 더 조심해야 하는 실수가 있을 것이다.
-용납할 수 없는 실수 A가 발생하지 않도록 하려면 실수 A가 발생할 때마다 더 큰 벌을 줘야 한다.
+classifier가 저지르는 실수가 여러 종류라면, 문제의 특성에 따라 더 조심해야 하는 실수가 있을 수 있다.
 예를 들어, 유죄인 사람을 무죄로 잘못 판결내리는 것도 나쁜 실수이지만 무죄인 사람을 유죄로 판결내리는 것은 훨씬 더 나쁜 실수이다.
-가령, loss 값에 제곱을 취한다는 것은 작은 실수보다 큰 실수일수록 더 큰 벌을 내린다는 뜻이다.
+이런 식으로 용납할 수 없는 실수 A가 발생하지 않도록 하려면 실수 A가 발생할 때마다 더 큰 벌을 줘야 한다.
+예를 들어, loss 값에 제곱을 취하면 큰 실수에는 더 큰 벌을 내린다는 뜻이다.
 
-`#inProgress : https://youtu.be/h7iBpEHGVNc?t=23m32s`
+### 2) Regularization
+
+regularization은 모델이 복잡할수록 loss가 커지게 만들어서 training data에 너무 노골적으로 fitting되는 것을 방지하는 개념이다. 즉, 모델의 복잡도에 penalty를 부여하는 것이다.
+
+![L03-regualrization.png](images/L03-regualrization.png)
+
+만약에 loss function을 정의할 때 classifier에게 training data에 fit하는 것에만 신경쓰도록 한다면, classifier는 모든 training data에 완벽하게 맞추려고 할 것이다.
+그렇게 되면 위 그림처럼 구불구불한 파란색 curve를 갖게 될 것이다.
+이건 좋지 않다. 왜냐하면 우리는 training data가 아니라 test data에 신경써야 하기 때문이다.
+만약에 test data가 녹색 네모처럼 들어온다면, 구불구불한 파란색 curve를 가진 classifier는 test data를 완전히 틀리게 예측할 것이다.
+차라리 classifer가 녹색의 straight line처럼 예측하도록 만드는 게 더 낫다.
+이러한 문제는 기계학습에서 핵심적이고 근본적인 문제이다.
+
+training data에 overfitting 되는 것을 해결하기 위해 regularization이라는 개념을 사용한다.
+loss function L(W)에 data loss term을 추가해서 training data에 fit하게 만들뿐만 아니라, regularization term을 추가한다.
+regularization term은 model이 더 간단한 W를 선택하도록 유도한다.
+parameter W는 왜 간단할수록 좋을까?
+과학적 발견에서 쓰이는 핵심적인 아이디어인 Occam's Razor에 따르면,
+"만약 관찰 데이터를 설명할 수 있는 모델이 여러 개 있다면, 더 간단한 모델을 선택해야 한다."
+왜냐하면 간단한 모델일수록 아직 나타나지 않은 새로운 데이터에 대해 일반화를 잘할 가능성이 더 높기 때문이다.
+기계학습에서 regularization 연산을 하는 방식은 regularization penalty를 주는 것이다.
+수식에서는 R로 표현한다.
+
+그림과 같이 표준적인 loss function은 data loss와 regularization loss 이렇게 2가지 term을 포함한다.
+regularization term에 있는 lambda는 hyperparameter인데, data loss와 regularization loss의 trade-off를 의미한다.
+lambda는 모델을 tuning할 때 중요한 영향을 끼치는 hyperparameter이다.
+
+### 3) Different types of Regularization
+
+![L03-types-of-regualrization.png](images/L03-types-of-regualrization.png)
+
+가장 많이 사용되는 regularization은 L2이다.
+L2는 weight decay라고 부르기도 한다.
+
++ L2 : weight vector W에 대한 Euclidean-norm(=L2-norm)으로 penalize한다.
+  + 벡터 W의 원소들이 값이 비슷한 spreaded out W를 선호한다.
++ L1 : weight vector W에 대한 L1-norm으로 penalize한다.
+  + L1 regularization은 matrix W의 값이 희박한 sparse W를 선호한다.
+
+> **Note:** norm : 벡터의 길이
+
+### 4) meaning of L1 and L2 Regularization
+
+![L03-L2-regularization.png](images/L03-L2-regularization.png)
+
+#### (1) L2 regularization
+
+L2 regularization이 모델의 복잡도를 어떻게 낮추는지 예시를 살펴보자.
+우리가 linear classification을 하면 x와 W를 내적(dot product)하게 된다.
+linear classification 관점에서 보면, 그림에 있는 w1이나 w2나 x와 dot product하면 값이 1이 되므로 같은 결과를 만들어낸다.
+L2 regularization을 하면 w1과 w2 중에 어느 것을 선택하게 될까?
+L2는 w2를 선택하게 된다.
+왜냐하면 w2가 벡터의 길이, 즉 norm이 더 작기 때문이다.
+
+linear classification에서 W는 벡터 x의 값이 output class와 얼마나 유사한지 측정해주는지 알려주는 기능을 했었다.
+따라서 L2 regularization의 의미는 벡터 x에 있는 모든 값이 영향을 골고루 미치도록 하는 W를 선호한다는 뜻과 같다.
+벡터 x의 특정 element에만 의존하지 않도록 만들기 때문이다.
+
+#### (2) L1 regularization
+
+L1 regularization은 L2 regularization과 의미가 반대이다.
+L1 regularization을 사용하면 w2보다 w1을 선호하게 된다.
+왜냐하면 L1 regularization은 벡터 w에 zero 값이 많을수록 모델의 복잡도가 더 낮다고 판단하기 때문이다.
+즉 L1은 가급적 벡터 w의 원소 값이 0이 많은 sparse solution을 선호한다.
+
+결국 L2와 L1을 언제 선택해야 하는지는 해결하고자 하는 문제와 데이터에 달려 있다 (problem and data dependent).
+
+
+`#inProgress : https://youtu.be/h7iBpEHGVNc?t=36m4s`
 
 ---
 
