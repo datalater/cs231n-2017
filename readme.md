@@ -85,8 +85,24 @@ L1 regularization을 사용하면 w2보다 w1을 선호하게 된다.
 
 결국 L2와 L1을 언제 선택해야 하는지는 해결하고자 하는 문제와 데이터에 달려 있다 (problem and data dependent).
 
+### 5) Softmax classifier
 
-`#inProgress : https://youtu.be/h7iBpEHGVNc?t=36m4s`
+multi-class SVM의 모델 `f(x,W)`이 뱉어내는 각 class에 대한 score 값은 input이 어떤 class에 가까운지 알려준다.
+그리고 score 값은 loss function에 입력되어서 모델의 정확도를 높이는 데 사용된다.
+true class에 대한 score가 incorrect class에 대한 score보다 높으면 좋은 모델로 삼도록 loss function을 정의할 수 있기 때문이다.
+하지만 score 값 자체가 어떤 의미인지는 알 수 없었다.
+가령, class cat에 대한 score가 3.2이고 class car에 대한 score가 5.1이라면 input이 car에 속할 가능성이 더 높다는 것은 알겠지만 3.2나 5.1이 가지는 의미가 무엇인지는 해석할 수가 없다.
+
+![L03-softmax.png](images/L03-softmax.png)
+
+그러나 multinomial logistic regression에서는 score에 확률이라는 의미를 더한다.
+score 값을 각 class에 대한 probability distribution을 계산하기 위해 사용하면 된다.
+각 score 값을 exponentiate해서 양의 값으로 만든다.
+그리고 각 exponent를 모든 exponent의 합으로 나눠준다.
+이를 softmax function이라고 부른다.
+
+
+`#inProgress : https://youtu.be/h7iBpEHGVNc?t=39m47s`
 
 ---
 
