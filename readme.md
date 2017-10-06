@@ -15,28 +15,169 @@
 ---
 ---
 
-## L03 Loss Functions and Optimization :: 7)
+## L03 Loss Functions and Optimization :: Image Features
+
+이하 등장하는 내용은 딥뉴럴넷이 등장하기 전 이미지의 feature를 활용해서 linear classifier의 성능을 향상시킨 이야기이다.
+
+### 10) Image Features
+
+![L03-image-features.png](images/L03-image-features.png)
+
+지금까지 linear classifier에 대해 논의했다.
+linear classifier는 이미지의 픽셀값을 그대로 입력 받는데, 실제로 이런 linear classifier는 잘 작동하지 않는다.
+그래서 2단계로 접근하는 대안이 등장했다.
+첫째, input 이미지의 특징이 될 만한 여러 가지 feature representation(특징 표현)을 계산한다.
+둘째, 여러 가지 feature 벡터를 결합한 feature representation을 linear classifier에 입력한다.
+그러니까 이전에는 이미지의 raw pixel을 입력했다면, 이후에는 선별적으로 고른 feature pixel을 입력한 것이다.
+
+![L03-image-features-motivation.png](images/L03-image-features-motivation.png)
+
+이전 강의에서도 설명했듯이 슬라이드 왼쪽과 같이 데이터가 나뉘어 있는 경우, linear classifier로는 빨간색 데이터 무리와 파란색 데이터 무리를 분리해낼 수 없었다.
+그런데 feature transform을 사용하면, 빨간색 데이터와 파란색 데이터가 linearly separable하게 변형된다.
+즉, 이미지에서 올바른 feature transform을 할 수 있다면 linear classifier의 성능을 향상시킬 수 있다.
+
+![L03-image-features-color-histogram.png](images/L03-image-features-color-histogram.png)
+
+feature transform의 간단한 예시 중 하나가 color histogram이다.
+hue spectrum을 몇 개의 구획으로 나눈 후, input 이미지의 각 픽셀에 해당하는 hue를 spectrum의 구획에 맵핑해서 각 구획을 기준으로 하는 histogram으로 나타낸 것이다.
+이러한 color histogram은 input 이미지에 어떤 color가 있는지 말해준다.
+input 이미지가 슬라이드처럼 개구리 이미지라면 histogram 분포에서 녹색이 많을 것이고 빨간색이나 보라색은 적을 것이다.
+
+![L03-image-features-HoG.png](images/L03-image-features-HoG.png)
+
+또 다른 예시는 HoG라고 불리는 Histogram of Oriented Gradients이다.
+HoG의 기본 원리는 이미지의 edge에 대한 local orientation을 측정하는 것이다.
+HoG의 작동 방식은 다음과 같다.
+먼저 input 이미지를 입력 받은 다음 8 by 8 픽셀 영역으로 나눈다.
+그리고 각 8 by 8 픽셀 영역 안에서 dominant edge direction이 무엇인지 계산하고, 계산한 edge direction을 histogram의 구획으로 수치화한다.
+그리고 각 픽셀 영역 안에서 서로 다른 edge direction에 대한 histogram을 계산한다.
+즉, HoG는 edge information의 종류가 어떻게 존재하는지 말해준다.
+슬라이드 왼쪽의 개구리 이미지를 HoG를 사용해서 feature vector를 구하고 그림으로 나타내면 슬라이드의 오른쪽과 같이 표현된다.
+나뭇잎이 가진 오른쪽으로 하강하는 대각선이 feature representation에서 잘 표현되어 있다.
+
+이러한 feature representation은 매우 흔하게 사용된 방법으로 object recognition에서 자주 사용되었다.
+
+![L03-image-features-Bag-of-Words.png](images/L03-image-features-Bag-of-Words.png)
+
+또 다른 feature representation의 예시는 Bag of Words이다.
+NLP에서 영감을 받은 아이디어이다.
+단락을 표현하는 feature vector를 어떻게 만들 수 있을까?
+단락에 등장한 단어의 개수를 세서 벡터로 나타내면 feature vector로 사용할 수 있다.
+문제는 단락에서는 단어로 단락을 나타낼 수 있었지만, 이미지에서는 이미지를 나타낼 단어의 역할을 할만한 개념이 딱히 없다는 것이다.
+따라서 이미지를 나타낼 visual words(=vocabulary)를 정의해야 한다.
+
+2단계 접근법을 사용한다.
+수많은 이미지를 모은 후, 각 이미지를 조각으로 잘라서 그 조각의 모음 중에서 샘플링을 한다.
+그리고 샘플링한 조각 이미지를 K-means 같은 알고리즘을 사용해서 clustering 한다.
+clustering 되면 cluster의 center는 서로 다른 종류의 visual words를 대표하는 값이 된다.
+슬라이드 step1에서 오른쪽을 보면 서로 다른 color와 edge orientation을 나타내는 visual words들이 표현되어 있다.
+step2에서는 input 이미지를 넣고, 이 input 이미지에서 visual words가 얼마나 많이 발생하는지를 기준으로 encode한다.
+즉, 이미지의 visual appearance를 측정한 것이므로 feature representation이 되는 것이다.
+
+### 11) Image Features vs. ConvNets
+
+![L03-image-features-vs-convnets.png](images/L03-image-features-vs-convnets.png)
+
+지금까지 얘기한 image features를 종합해서 convolutional network와 비교해보겠다.
+이미지 분류 문제의 해결방법은 슬라이드와 같이 요약된다.
+첫 번째 방법은, Bag of Words나 HoG를 사용해서 이미지의 feature representation을 계산한 다음 모든 feature를 결합한 것을 linear classifier에 넣는다.
+여기서 사용된 feature extractor는 고정된 것으로 학습하는 동안 업데이트 되지 않는다.
+두 번째 방법인 ConvNets으로 오면 feature를 미리 정하기 전에 feature를 데이터로부터 직접 배운다는 게 가장 큰 차이점이다.
+ConvNets은 이미지의 raw pixel을 그대로 입력 받고 네트워크의 수많은 layer를 통해 계산된 다음 데이터에 기반하여 feature representation을 하고 모든 파라미터를 업데이트한다.
+즉, 첫 번째 방법처럼 linear classifier의 파라미터만 업데이트하는 것이 아니라 네트워크에 있는 모든 파라미터를 업데이트한다.
+
+**끝.**
+
+---
+
+## L03 Loss Functions and Optimization :: Optimization and SGD
 
 ### 7) Optimization
 
 loss function을 정의하는 방법까지는 알겠는데, 실제로 loss를 최소화하는 W를 어떻게 찾을 수 있을까?
-optimization을 직관적으로 이해하려면 등산하러 온 사람이 집에 돌아가기 위해 산 정상에서 가장 낮은 곳으로 내려와야 하는 상황을 떠올리면 된다.
+optimization을 직관적으로 이해하려면 등산하러 온 사람이 집으로 돌아가기 위해 산 정상에서 가장 낮은 곳으로 내려와야 하는 상황을 떠올리면 된다.
 이때 좌우로 움직일 때마다 변하는 좌표는 W를 의미하고, 좌표에 따라 낮아지거나 높아지는 산의 높이는 loss를 의미한다.
 
-모양이 단순한 산을 내려오는 일은 어려운 일이 아닐 수도 있지만, 모델 함수 f와 loss function, 그리고 regularizer 모두 매우 크고 복잡해진다면 minima에 다다르기 위한 명확한 해석적 방법(explicit analytic solution)을 찾기란 거의 불가능하다.
-그래서 실전에서는 다양한 반복적 방법을 사용한다.
+모양이 단순한 산을 내려오는 일은 어려운 일이 아니지만, 모델 함수 f와 loss function, 그리고 regularizer 모두 매우 크고 복잡해진다면 minima에 다다르기 위한 명확한 해석적 방법(explicit analytic solution)을 찾기란 거의 불가능하다.
+그래서 실전에서는 여러 가지 반복적 방법을 사용한다.
 반복적 방법이란, 어떤 solution에서 시작하여 solution을 점점 더 향상시키는 방법을 뜻한다.
 
-떠올릴 수 있는 방법 한 가지는, 산 속 현재 위치에서 가장 낮은 곳으로 가는 길이 보이지 않더라도 발걸음을 옮겨 가면서 더 낮은 곳으로 가는 방향이 어딘지 살펴보는 것이다.
+떠올릴 수 있는 방법 한 가지는, 현재 위치에서 가장 낮은 곳으로 가는 길이 보이지 않더라도 발걸음을 옮겨 가면서 더 낮은 곳으로 가는 방향이 어딘지 살펴보는 것이다.
 즉, 경사가 낮아지는 곳이 어딘지 살펴보고 그 방향으로 이동하는 것을 반복하는 방법이 있다.
-이러한 알고리즘은 매우 간단하지만 neural network나 linear classifier 등을 사용하는 실전에서 매우 잘 작동하는 경향이 있다.
+이러한 알고리즘은 매우 간단하지만 neural network나 linear classifier 등을 사용하는 실전에서 매우 잘 작동한다.
 
-경사란 무엇일까?
+![L03-optimization-gradient.png](images/L03-optimization-gradient.png)
 
+경사(slope)란 무엇일까?
+1차원 공간에서 경사는 1차원 함수를 미분한 스칼라 값을 말한다.
+우리가 다루는 벡터 x와 w는 다차원이다.
+다차원 공간에서 경사(gradient)는 다차원 함수를 편미분한 편미분 벡터를 말한다.
+편미분 벡터의 각 요소는 그 방향으로 움직일 경우 함수의 경사가 어떻게 되는지 말해준다.
+다시 말하면 편미분 벡터 gradient는 함수의 값이 가장 커지는 방향이 어딘지를 가리키고 있다.
+따라서 gradient 벡터의 반대 방향으로 가면 함수의 값이 가장 작아지는 방향이 된다.
+만약 다차원 공간에서 특정 방향에 대한 경사를 알고 싶다면, 특정 방향을 가진 unit vector에 gradient vector를 내적(dot product)하면 된다.
+gradient가 매우 중요한 이유는 현재 지점에서 모델 함수의 선형 일차 근사(linear, first-order approximation)를 제공하기 때문이다.
+실제로 딥러닝을 사용하는 수많은 경우에서 모델 함수의 gradient를 계산한 후 gradient를 사용해서 파라미터 벡터 w를 반복적으로 업데이트한다.
+
+> **Note**: 우리말로 slope나 gradient나 모두 경사를 뜻하지만, 다차원 공간의 경사(slope)는 따로 gradient라고 지칭한다. gradient는 벡터 값이므로 gradient vector라고도 말한다.
+
+### 8) Gradient Descent
+
+![L03-optimization-gradient-descent.png](images/L03-optimization-gradient-descent.png)
+
+gradient를 구할 줄 알면, 엄청나게 크고 가장 복잡한 딥러닝 알고리즘도 아주 쉽게 학습할 수 있다.
+gradient descent 알고리즘은 먼저 파라미터 W를 임의 값으로 초기화한 다음, loss와 gradient를 계산해서 gradient의 반대 방향으로 파라미터 W를 업데이트한다.
+앞서 말했듯이 gradient는 함수의 값이 가장 커지는 방향을 가리키고 있고, 우리는 loss function의 값을 줄여야 하기 때문에 gradient 반대 방향으로 업데이트 해야 한다.
+이렇게 gradient 반대 방향으로 한 스텝씩 이동하는 것을 꾸준히 반복하면, 모델이 어느 지점으로 수렴하게 될 것이다.
+여기서 스텝 사이즈는 hyperparameter이다.
+스텝 사이즈는 gradient를 계산할 때마다 gradient 반대 방향으로 얼마나 멀리 이동할지를 뜻한다.
+스텝 사이즈는 learning rate라고도 불리며, 연구자가 데이터를 학습할 때 고려해야 하는 가장 중요한 hyperparameter 중 하나이다.
+강의자의 경우 적절한 스텝 사이즈를 알아내는 것이 가장 먼저 체크하는 hyperparameter라고 한다.
+모델의 크기나 regularization strength 등 여러 가지 hyperparameter가 있지만 스텝 사이즈를 가장 먼저 체크한다고 한다.
+
+![L03-optimization-gradient-descent-visual.png](images/L03-optimization-gradient-descent-visual.png)
+
+2차원 공간으로 loss function이 표현된 예제에서 gradient descent 알고리즘이 어떻게 작동하는지 보자.
+가운데 빨간 영역은 loss가 가장 낮은 영역으로써 우리가 도달하고 싶은 곳이다.
+가장자리의 파란색과 보라색 영역은 loss가 높은 영역으로 우리가 피하고 싶은 곳이다.
+gradient descent 알고리즘을 실행하면, 먼저 파라미터 W를 공간 상에 임의의 지점으로 시작한다.
+그리고 빨간색 영역에 있는 minima로 도달하도록 매 스텝마다 negative gradient direction을 계산해서 이동한다.
+
+gradient descent의 기본 원리는 매 스텝마다 gradient를 사용해서 다음 스텝으로 어디로 이동할지를 결정해서 매 스텝마다 내리막으로 이동하는 것이다.
+그런데 gradient를 어떻게 사용할지에 대한 update rules에는 다양한 방법이 존재한다.
+update rules에 다양한 방법이 존재하는 이유는 기본적인 gradient descent 알고리즘, 즉 Vanilla Gradient Descent에는 약점이 있기 때문이다.
+
+> **Note**: 기계학습에서 "vanilla"라는 용어가 자주 등장하는데 이는 '평범한, 기본적인'이라는 뜻이다. 즉, Vanila Gradient Descent는 우리가 처음 배운 gradient descent와 동일한 개념이다.
+
+이전에 loss를 정의해서 우리가 만든 classifier가 각각의 training example 하나마다 어떤 오차가 있는지 계산했다.
+그리고 loss function을 정의해서 training dataset 전체에 대한 loss를 평균 내서 full loss를 계산했다.
+그런데 실제로 training data의 수 $N$은 매우 매우 커질 수 있다.
+ImageNet의 데이터셋을 사용하면 $N$의 크기는 130만 개이다.
+따라서 모든 training dataset을 전부 활용하는 Vanila Gradient Descent 알고리즘에서는 loss와 gradient를 계산하는 것이 매우 매우 비싸고 느릴 수밖에 없다.
+
+### 9) Stochastic Gradient Descent
+
+![L03-optimization-gradient-descent-SGD.png](images/L03-optimization-gradient-descent-SGD.png)
+
+여기서 우리가 논의해야 할 좋은 묘안이 하나 있다.
+위 슬라이드를 보자.
+gradient는 선형 연산(linear operator)이기 때문에 함수식 $L(W)$에 대한 gradient를 계산해보면 loss에 대한 gradient인 $\Sigma_{i=1}{N} \triangledown_{W}L_{i}(x_i, y_i, W)$는 loss의 gradient를 모두 합한 것이 된다.
+따라서 gradient를 한 번 더 계산할 때마다, training data 전체에 대해 한 번 더 계산해야 한다.
+$N$이 백만 단위를 넘어가면 gradient 연산이 매우 오래 걸리게 되는데, 이는 결국 파라미터 W를 한 번 업데이트 하기 위해서 엄청나게 긴 시간을 기달려야 한다는 뜻이 된다.
+그래서 실전에서는 Stochastic Gradient Descent (SGD)라고 불리는 알고리즘을 사용한다.
+SGD는 loss와 gradient를 계산할 때 모든 training set 전체를 사용하는 것이 아니라, traing set 중에서 샘플링한 몇 개의 데이터(=minibatch)를 사용한다.
+
+> **Note**: 슬라이드의 코드를 보면 data_batch를 구할 때 전체 training set에서 256개 데이터를 샘플링하고 있다. 이렇게 training set에서 샘플링된 데이터가 바로 minibatch이다. minibatch의 개수는 일반적으로(by convention) 32, 64, 128처럼 2의 거듭제곱으로 사용한다.
+
+즉, SGD는 minibatch를 사용해서 true full loss와 true gradient의 추정치(estimate)를 구하는 것이다.
+이렇게 모수에 대한 추정치를 사용하는 측면이 확률적인 속성이므로 stochastic하다고 말한다.
+따라서 SGD는 minibatch를 사용해서 loss와 gradient를 계산한 후 파라미터 W를 업데이트 한다.
+
+**끝.**
 
 ---
 
-## L03 Loss Functions and Optimization :: 5) ~ 6)
+## L03 Loss Functions and Optimization :: Softmax classifier
 
 ### 5) Softmax classifier
 
