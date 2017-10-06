@@ -15,7 +15,92 @@
 ---
 ---
 
-## L03 Loss Functions and Optimization
+## L03 Loss Functions and Optimization :: 7)
+
+### 7) Optimization
+
+loss function을 정의하는 방법까지는 알겠는데, 실제로 loss를 최소화하는 W를 어떻게 찾을 수 있을까?
+optimization을 직관적으로 이해하려면 등산하러 온 사람이 집에 돌아가기 위해 산 정상에서 가장 낮은 곳으로 내려와야 하는 상황을 떠올리면 된다.
+이때 좌우로 움직일 때마다 변하는 좌표는 W를 의미하고, 좌표에 따라 낮아지거나 높아지는 산의 높이는 loss를 의미한다.
+
+모양이 단순한 산을 내려오는 일은 어려운 일이 아닐 수도 있지만, 모델 함수 f와 loss function, 그리고 regularizer 모두 매우 크고 복잡해진다면 minima에 다다르기 위한 명확한 해석적 방법(explicit analytic solution)을 찾기란 거의 불가능하다.
+그래서 실전에서는 다양한 반복적 방법을 사용한다.
+반복적 방법이란, 어떤 solution에서 시작하여 solution을 점점 더 향상시키는 방법을 뜻한다.
+
+떠올릴 수 있는 방법 한 가지는, 산 속 현재 위치에서 가장 낮은 곳으로 가는 길이 보이지 않더라도 발걸음을 옮겨 가면서 더 낮은 곳으로 가는 방향이 어딘지 살펴보는 것이다.
+즉, 경사가 낮아지는 곳이 어딘지 살펴보고 그 방향으로 이동하는 것을 반복하는 방법이 있다.
+이러한 알고리즘은 매우 간단하지만 neural network나 linear classifier 등을 사용하는 실전에서 매우 잘 작동하는 경향이 있다.
+
+경사란 무엇일까?
+
+
+---
+
+## L03 Loss Functions and Optimization :: 5) ~ 6)
+
+### 5) Softmax classifier
+
+#### softmax function이 하는 일
+
+multi-class SVM의 모델 `f(x,W)`이 뱉어내는 각 class에 대한 score 값은 true class에 대한 score가 incorrect class에 대한 score보다 높으면 좋은 모델로 삼도록 loss function을 정의하도록 사용된다.
+하지만 score 값 자체가 어떤 의미인지는 알 수 없었다.
+가령, input 이미지를 넣었을 때 class cat에 대한 score가 3.2이고 class car에 대한 score가 5.1이라면 input 이미지가 car에 속할 가능성이 더 높다는 것은 알겠지만 3.2나 5.1이 가지는 의미가 무엇인지는 해석할 수가 없었다.
+**softmax classifier(=multinomial logistic regression)는 score를 "확률" 값 P로 바꿔준다**.
+
+![L03-softmax2.png](images/L03-softmax2.png)
+
+특정 이미지를 입력 받은 후 각 class에 대한 score 값을 exponentiate해서 양의 값으로 만든다.
+그리고 각 exponent를 모든 exponent의 합으로 나눠준다.
+이러한 일련의 과정을 거쳐서 unnormalized log probabilities였던 scores가 probabilities로 바뀐다.
+데이터가 특정 class에 속할 확률값을 출력하는 함수를 softmax function이라고 부른다.
+score 값을 각 class에 대한 probability distribution, 즉 $P$로 바꿨다.
+
+#### loss와 loss function 정의
+
+![L03-softmax3.png](images/L03-softmax3.png)
+
+**loss를 정의하려면 $P$와 target probability distribution을 비교해야 한다**. target probability distribution을 살펴보면, true class에 대한 probability mass는 1이 되고 나머지 class에 대한 probability mass는 0이 된다.
+우리가 원하는 것은 $P$가 target probability distribution과 최대한 가까워지도록 만드는 것이다.
+
+> **Note**: $P$ : computed probability distribution
+
+$P$가 target probability distribution과 가까워지게 만드는 방법은 여러 가지가 있다.
+target probability distribution과 $P$(computed probability distribution) 사이의 KL-divergence를 구한다거나, 또는 MLE(최우추정법)을 사용할 수도 있다.
+방법이 무엇이 됐든 **우리가 원하는 최종 형태는 true class에 대한 probability가 1에 가까워야 한다는 것이다.
+그런데 다음과 같은 2가지 이유로 loss function의 형태는 negative log 형태가 된다**.
+
+첫째, log 형태가 되는 이유는 수학적으로 raw probability를 maximize하는 것보다 log log를 maxmize하는 것이 더 쉽기 때문이다.
+둘째, negative를 취하는 이유는 ture class에 대한 $\log P$를 maximize하게 되면 나쁜 정도가 아니라 좋은 정도를 측정하기 때문이다.
+loss는 파라미터의 나쁜 정도를 측정해야 하므로 negative를 취해야 한다.
+
+#### negative log로 정의되는 loss function의 직관적인 의미
+
+loss function을 직관적으로 이해하려면 극단적인 값을 넣어보면 된다.
+true class에 대한 $P$값이 0이 되었다고 하자.
+true class에 속할 확률이 0이라는 것은 최악의 파라미터이므로 loss를 maximum으로 내뱉어야 한다.
+$L = -\log P= -(-\infty) = \infty$가 된다.
+
+### 6) hinge loss (SVM) vs. cross-entropy loss (Softmax)
+
+![L03-softmax.vs.SVM.png](images/L03-softmax.vs.SVM.png)
+
+SVM의 hinge loss는 correct score가 incorrect score보다 특정 margin보다 커지도록 신경쓴다.
+그러나 Softmax의 cross-entropy loss는 correct probability가 반드시 1이 되도록 신경쓴다.
+score 관점에서 보면, Softmax는 correct class에 대해서는 plus infinity score를 주려고 하고 incorrect class에 대해서는 minus infiinity score를 주려고 한다.
+
+> **Note**: softmax 알고리즘의 loss를 cross-entropy loss라고 부른다.
+
+### 6) Recap
+
+![L03-lossFunctionsRecap.png](images/L03-lossFunctionsRecap.png)
+
+loss를 정의하는 여러 가지 방법 중에서 Softmax의 cross-entropy loss와 SVM의 hinge loss를 알아보았다.
+data에 대한 loss를 정의한 이후에는 Regularization loss를 추가해서 Full loss function을 완성한다.
+
+
+---
+
+## L03 Loss Functions and Optimization :: 1) ~ 4)
 
 ### 1) Loss
 
@@ -32,45 +117,49 @@ classifier가 저지르는 실수가 여러 종류라면, 문제의 특성에 �
 
 regularization은 loss function에 반드시 포함되어야 하는 또 다른 loss 개념이다.
 만약 trainig data에 대한 loss만 신경쓴다면, 모델은 training data에 조금이라도 어긋나지 않기 위해 지나치게 복잡한 모델을 만들게 된다. training data만 달달 외운 복잡한 모델은 정작 가장 중요한 test data에 대한 generalization 능력이 떨어진다.
-이러한 모델의 overfitting 현상을 방지하고자 regularization은
-모델이 복잡할수록 penalty를 부여한다.
+training error에 비해 test error가 현저히 떨어지는 현상을 두고 "모델이 overfitting이 되었다"고 말한다.
+overfitting을 방지하고자 regularization은 모델이 복잡할수록 penalty를 부여한다.
 즉, 모델이 복잡할수록 loss가 커지게 만들어서 모델이 training data에만 지나치게 overfitting되는 것을 방지하는 개념이다.
 
 ![L03-regualrization.png](images/L03-regualrization.png)
 
-만약에 loss function을 정의할 때 classifier에게 "야, training data에 fit하는 것에만 신경 써"라고 말한다면, classifier는 모든 training data에 완벽하게 맞추려고 할 것이다.
-그렇게 되면 위 그림처럼 구불구불한 파란색 curve를 갖게 된다.
-이건 좋지 않다.
-왜냐하면 우리는 training data가 아니라 test data에 신경써야 하기 때문이다.
-만약에 test data가 녹색 네모처럼 들어온다면, 구불구불한 파란색 curve를 가진 classifier는 test data를 완전히 틀리게 예측할 것이다.
-차라리 classifer가 녹색의 straight line처럼 예측하도록 만드는 게 더 낫다.
-이러한 문제는 기계학습에서 핵심적이고 근본적인 문제이다.
-
-모델이 training data에 overfitting 되는 것을 해결하기 위해 regularization이라는 개념을 사용한다.
-loss function L(W)에 data loss term을 넣어서 training data에 fit하게 만들뿐만 아니라, regularization term도 추가한다.
-regularization term은 model이 더 간단한 W를 선택하도록 유도한다.
+그림과 같이 표준적인 loss function은 data loss와 regularization loss 이렇게 2가지 term을 포함한다.
+loss function L(W)에 data loss term을 넣어서 training data에 fit하게 만들뿐만 아니라, regularization term도 추가해서 model이 overfitting 되지 않도록 더 간단한 파라미터 W를 선택하도록 유도한다.
+regularization term에 있는 lambda는 hyperparameter인데, data loss와 regularization loss의 trade-off를 의미한다.
+lambda는 모델을 tuning할 때 중요한 영향을 끼치는 hyperparameter이다.
 
 parameter W는 왜 간단할수록 좋을까?
 과학적 발견에서 쓰이는 핵심적인 아이디어인 Occam's Razor에 따르면,
 "만약 관찰 데이터를 설명할 수 있는 모델이 여러 개 있다면, 더 간단한 모델을 선택해야 한다."
 왜냐하면 간단한 모델일수록 아직 나타나지 않은 새로운 데이터에 대해 일반화를 잘할 가능성이 더 높기 때문이다.
-regularization 연산은 regularization penalty를 주는 방식으로 수행하고, 수식에서는 R로 표현한다.
-
-그림과 같이 표준적인 loss function은 data loss와 regularization loss 이렇게 2가지 term을 포함한다.
-regularization term에 있는 lambda는 hyperparameter인데, data loss와 regularization loss의 trade-off를 의미한다.
-lambda는 모델을 tuning할 때 중요한 영향을 끼치는 hyperparameter이다.
+regularization 연산은 regularization penalty를 주는 방식으로 수행하고, weight가 작아지도록 유도하기 때문에 weight decay라고도 부른다.
+weight decay를 하면 test set에 대한 성능 향상이 일어난다.
 
 ### 3) Different Types of Regularization
 
 ![L03-types-of-regualrization.png](images/L03-types-of-regualrization.png)
 
+regularizaiton 연산을 하는 방법은 파라미터인 벡터 w의 길이를 구하고, 길이에 따라 regularization loss를 매기는 것이다.
+벡터 w의 길이를 구하는 방법은 L1-norm, L2-norm 등 다양하게 있으며 그에 따라 regularization의 종류도 달라진다.
 가장 많이 사용되는 regularization은 L2 regularization이다.
-L2 regularization은 weight decay라고 부르기도 한다.
 
-+ L2 : weight vector W에 대한 Euclidean-norm(=L2-norm)으로 penalize한다.
-  + 벡터 W의 원소들의 값이 서로 비슷한 spreaded out W를 선호한다.
-+ L1 : weight vector W에 대한 L1-norm으로 penalize한다.
-  + 벡터 W의 원소들의 값이 거의 0이 되도록 하는 sparse한 W를 선호한다.
+L2 regularization은 2가지 키워드 Euclidean-norm과 spread가 있다.
+Euclidean-norm은 L2 regularization에서 벡터의 길이를 구하는 방법을 뜻한다.
+벡터 w가 $(3, -2, 1)$일 경우 $||w||_ {2} = \sqrt{(3^{2}+(-2)^{2}+1^{2})} = 3.742$가 된다.
+L2 regularization의 키워드가 spread인 이유는 L1 regularization과 비교할 때 각 원소의 단순 합이 똑같다면 L2 관점에서는 벡터 w의 원소값이 골고루 퍼져 있을수록 길이가 짧아지기 때문이다.
+정리하면, L2 regularization은 Euclidean-norm으로 파라미터 W를 penalize하며, 원소 값이 한쪽으로 쏠리기 보다는 서로 비슷하게 spreaded out된 벡터 w를 선호한다.
+
+
+L1 regularization은 L2 regularization 다음으로 쓰인다.
+L1 regularization은 2가지 키워드 Manhattan-norm과 sparse가 있다.
+Manhattan-norm은 L1 regularization에서 벡터의 길이를 구하는 방법을 뜻한다.
+Manhattan은 직사각형 블록 단위로 이루어져 있는 도시라서 대각선으로 가로지르지 않고 가로세로로 이동한다.
+여기서 가로세로로 이동하는 방법이 L1 regularization에서 벡터의 길이를 구하는 방법과 같다.
+벡터 w가 $(3, -2, 1)$일 경우 $||w||_ {1} = \Sigma{(3+(-2)+1)} = 2$가 된다.
+L1 regularization의 키워드가 sparse인 이유는 원소 값에 0이 많은 sparse한 벡터 w를 선호하기 때문이다.
+원소 값에 0이 많다는 것은 값이 희박하다, 즉 sparse하다는 것을 뜻한다.
+정리하면, L1 regularization은 Manhattan-norm으로 파라미터 W를 penalize하며, 원소 값이 한쪽으로 쏠려 있고 나머지는 0이 되는 sparse한 벡터 w를 선호한다.
+
 
 > **Note:** norm : 벡터의 길이
 
@@ -85,12 +174,11 @@ w는 w의 각 원소와 곱해지는 x의 각 픽셀값이 output class와 얼�
 
 #### (1) L2 regularization
 
-L2 regularization을 하면 w1과 w2 중에 어느 것을 선택하게 될까?
-w2를 선택하게 된다.
-왜냐하면 L2 관점에서는 w1의 길이($1=1^{2} + 0^{2} + 0^{2} + 0^{2}$)보다 w2의 길이($0.25=0.25^{2} * 4$)가 더 작기 때문이다.
+L2 regularization을 하면 w2를 선택하게 된다.
+w1의 길이($1=1^{2} + 0^{2} + 0^{2} + 0^{2}$)보다 w2의 길이($0.25=0.25^{2} * 4$)가 더 작기 때문이다.
 L2 관점에서는 w2처럼 벡터 w의 원소 값이 골고루 분포되어 있는 모델이 복잡도(regularization loss)가 더 작다고 생각한다.
 
-L2 regularzation을 하면 w2를 선호한다는 것은 알겠는데, 그것이 linear classifier에 미치는 영향은 무엇일까?
+L2 regularzation이 linear classifier에 미치는 영향은 무엇일까?
 w가 골고루 퍼져있다는 것은 w와 곱(dot product)해질 입력값 벡터 x의 원소 또한 골고루 선택된다는 것을 뜻한다.
 즉, L2 regularization을 하면 벡터 x의 특정 element에만 의존하는 것이 아니라 벡터 x의 여러 element를 골고루 고려하는 모델을 선호하게 된다.
 
@@ -105,32 +193,9 @@ L1 관점에서는 w1처럼 벡터 w의 원소 값에 0이 많은 sparse한 모�
 W가 sparse 하다, 즉 zero 값이 많다는 것은 W와 곱(dot product)해질 입력값 벡터 x의 원소 또한 특정 원소만 선택된다는 것을 뜻한다.
 즉, L1 regularization은 벡터 x의 특정 element에 의존하는 모델을 선호하게 된다.
 
-L2와 L1을 언제 선택해야 하는지는 해결하고자 하는 문제와 데이터에 달려 있다 (problem and data dependent).
+> **Note**: L2와 L1을 언제 선택해야 하는지는 해결하고자 하는 문제와 데이터에 달려 있다 (problem and data dependent). 그런데 경험적으로는 거의 L2가 성능이 더 좋다고 알려져 있다.
 
-### 5) Softmax classifier
-
-multi-class SVM의 모델 `f(x,W)`이 뱉어내는 각 class에 대한 score 값은 true class에 대한 score가 incorrect class에 대한 score보다 높으면 좋은 모델로 삼도록 loss function을 정의하도록 사용된다.
-하지만 score 값 자체가 어떤 의미인지는 알 수 없었다.
-가령, class cat에 대한 score가 3.2이고 class car에 대한 score가 5.1이라면 input이 car에 속할 가능성이 더 높다는 것은 알겠지만 3.2나 5.1이 가지는 의미가 무엇인지는 해석할 수가 없었다. softmax classifier(=multinomial logistic regression)는 score에 "확률"이라는 추가적인 의미를 부여한다.
-
-![L03-softmax3.png](images/L03-softmax3.png)
-
-score 값을 각 class에 대한 probability distribution으로 바꾸는 softmax function을 적용해서 "확률"이라는 의미를 더한다.
-P를 구한 후 우리가 원하는 것은 target `@@@resume`
-P를 구하는 방법은 다음과 같다.
-
-`#inProgress : https://youtu.be/h7iBpEHGVNc?t=40m36s`
-
-![L03-softmax2.png](images/L03-softmax2.png)
-
-특정 이미지를 입력 받은 후 각 class에 대한 score 값을 exponentiate해서 양의 값으로 만든다.
-그리고 각 exponent를 모든 exponent의 합으로 나눠준다.
-이러한 일련의 과정을 거쳐서 unnormalized log probabilities였던 scroes가 probabilities로 바뀐다.
-이를 softmax function이라고 부른다.
-
-
-
-
+**끝.**
 
 ---
 
@@ -221,9 +286,7 @@ linear classification은 위와 같은 3가지 case에 대응하지 못한다.
 
 그럼에도 불구하고, linear classification은 매우 간단하며 해석하기도 쉽고 이해하기 수월한 알고리즘이다.
 
+**끝.**
 
 ---
-
-
-
 ---
