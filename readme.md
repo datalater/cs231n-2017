@@ -11,13 +11,35 @@
 + Loss : 모델에 포함된 파라미터의 나쁜 정도
 + Loss Function : 파라미터를 입력하면, 파라미터가 얼마나 나쁜지를 알려주는 함수이다
 + Optimization : 가능한 모든 파라미터의 공간에서 나쁜 정도가 가장 낮은 파라미터를 찾는 과정
++ SGD : training dataset에서 샘플링한 데이터인 minibatch를 이용해서 loss와 gradient를 계산하는 알고리즘
 
 ---
+---
+
+## L04 Introduction to Neural Networks
+
+### 1) Review
+
+지금까지 파라미터 W가 포함된 함수 $f$를 사용해서 classifier를 만드는 방법을 배웠다.
+함수 $f$는 인풋으로 데이터 x를 받고, 각 class에 대한 score 값으로 구성된 벡터값을 아웃풋으로 출력한다.
+그리고 loss function을 정의해서 모델이 내뱉는 score가 얼마나 좋고 나쁜지를 수치화했다.
+그리고 total loss term이 포함된 $L$을 정의했는데, $L$은 data loss와 더 나은 generalization을 위해 간단한 모델을 선호하도록 모델이 얼마나 간단한지를 나타내는 regularization으로 구성된다.
+그 다음에는 가장 적은 loss에 해당하는 파라미터 W를 찾아야 한다.
+loss function을 최소화하는 파라미터 W를 찾기 위해 각 파라미터 W에 대한 L의 gradient를 구한다.
+파라미터 optimization을 하는 방법은 loss landscape에서 loss가 가장 낮은 곳까지 도달하기 위해 각 지점마다 가장 가파른 곳인 negative of gradient 방향으로 반복적으로 이동하는 것이다.
+
+gradient를 계산하는 방법은 여러 가지 있었다.
+numerical gradient는 finite difference approximation을 이용해서 계산하는데 느리고, 정확하지 않지만, 작성하기 쉽다.
+analytic gradient는 공식이 정의되면 빠르고, 정확하지만 미분을 해야 하므로 여러 가지 수학 계산이 동반된다.
+
+
+
+
 ---
 
 ## L03 Loss Functions and Optimization :: Image Features
 
-이하 등장하는 내용은 딥뉴럴넷이 등장하기 전 이미지의 feature를 활용해서 linear classifier의 성능을 향상시킨 이야기이다.
+이하 등장하는 내용은 딥뉴럴넷이 등장하기 전 이미지의 feature를 활용해서 linear classifier의 성능을 향상시킨 이야기를 먼저 하고 이후에 딥뉴럴넷과 비교한다.
 
 ### 10) Image Features
 
@@ -54,7 +76,6 @@ HoG의 작동 방식은 다음과 같다.
 즉, HoG는 edge information의 종류가 어떻게 존재하는지 말해준다.
 슬라이드 왼쪽의 개구리 이미지를 HoG를 사용해서 feature vector를 구하고 그림으로 나타내면 슬라이드의 오른쪽과 같이 표현된다.
 나뭇잎이 가진 오른쪽으로 하강하는 대각선이 feature representation에서 잘 표현되어 있다.
-
 이러한 feature representation은 매우 흔하게 사용된 방법으로 object recognition에서 자주 사용되었다.
 
 ![L03-image-features-Bag-of-Words.png](images/L03-image-features-Bag-of-Words.png)
