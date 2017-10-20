@@ -221,11 +221,11 @@ ConvNets은 이미지의 raw pixel을 그대로 입력 받고 네트워크의 �
 
 ### 1) Optimization
 
-loss function을 정의하는 방법까지는 알겠는데, 실제로 loss를 최소화하는 W를 어떻게 찾을 수 있을까?
+loss function을 정의하는 방법까지는 알겠는데, 실제로 loss를 최소화하는 $W$를 어떻게 찾을 수 있을까?
 optimization을 직관적으로 이해하려면 등산하러 온 사람이 집으로 돌아가기 위해 산 정상에서 가장 낮은 곳으로 내려와야 하는 상황을 떠올리면 된다.
-이때 좌우로 움직일 때마다 변하는 좌표는 W를 의미하고, 좌표에 따라 낮아지거나 높아지는 산의 높이는 loss를 의미한다.
+이때 좌우로 움직일 때마다 변하는 좌표는 $W$를 의미하고, 좌표에 따라 낮아지거나 높아지는 산의 높이는 loss를 의미한다.
 
-모양이 단순한 산을 내려오는 일은 어려운 일이 아니지만, 모델 함수 f와 loss function, 그리고 regularizer 모두 매우 크고 복잡해진다면 minima에 다다르기 위한 명확한 해석적 방법(explicit analytic solution)을 찾기란 거의 불가능하다.
+모양이 단순한 산을 내려오는 일은 어려운 일이 아니지만, 모델 함수 $f$와 loss function, 그리고 regularizer 모두 매우 크고 복잡해진다면 minima에 다다르기 위한 명확한 해석적 방법(explicit analytic solution)을 찾기란 거의 불가능하다.
 그래서 실전에서는 여러 가지 반복적 방법을 사용한다.
 반복적 방법이란, 어떤 solution에서 시작하여 solution을 점점 더 향상시키는 방법을 뜻한다.
 
@@ -253,7 +253,7 @@ gradient가 매우 중요한 이유는 현재 지점에서 모델 함수의 선�
 ![L03-optimization-gradient-descent.png](images/L03-optimization-gradient-descent.png)
 
 gradient를 구할 줄 알면, 엄청나게 크고 가장 복잡한 딥러닝 알고리즘도 아주 쉽게 학습할 수 있다.
-gradient descent 알고리즘은 먼저 파라미터 $W$를 임의 값으로 초기화한 다음, loss와 gradient를 계산해서 gradient의 반대 방향으로 파라미터 W를 업데이트한다.
+gradient descent 알고리즘은 먼저 파라미터 $W$를 임의 값으로 초기화한 다음, loss와 gradient를 계산해서 gradient의 반대 방향으로 파라미터 $W$를 업데이트한다.
 앞서 말했듯이 gradient는 함수의 값이 가장 커지는 방향을 가리키고 있고, 우리는 loss function의 값을 줄여야 하기 때문에 gradient 반대 방향으로 업데이트 해야 한다.
 이렇게 gradient 반대 방향으로 한 스텝씩 이동하는 것을 꾸준히 반복하면, 모델이 어느 지점으로 수렴하게 될 것이다.
 여기서 스텝 사이즈는 hyperparameter이다.
@@ -282,7 +282,7 @@ update rules에 다양한 방법이 존재하는 이유는 기본적인 gradient
 ImageNet의 데이터셋을 사용하면 $N$의 크기는 130만 개이다.
 따라서 모든 training dataset을 전부 활용하는 Vanila Gradient Descent 알고리즘에서는 loss와 gradient를 계산하는 것이 매우 매우 비싸고 느릴 수밖에 없다.
 
-### 3) Stochastic Gradient Descent
+### 3) Stochastic Gradient Descent and Minibatch
 
 ![L03-optimization-gradient-descent-SGD.png](images/L03-optimization-gradient-descent-SGD.png)
 
@@ -290,7 +290,7 @@ ImageNet의 데이터셋을 사용하면 $N$의 크기는 130만 개이다.
 위 슬라이드를 보자.
 gradient는 선형 연산(linear operator)이기 때문에 함수식 $L(W)$에 대한 gradient를 계산해보면 loss에 대한 gradient인 $\Sigma_{i=1}{N} \triangledown_{W}L_{i}(x_i, y_i, W)$는 loss의 gradient를 모두 합한 것이 된다.
 따라서 gradient를 한 번 더 계산할 때마다, training data 전체에 대해 한 번 더 계산해야 한다.
-$N$이 백만 단위를 넘어가면 gradient 연산이 매우 오래 걸리게 되는데, 이는 결국 파라미터 W를 한 번 업데이트 하기 위해서 엄청나게 긴 시간을 기달려야 한다는 뜻이 된다.
+$N$이 백만 단위를 넘어가면 gradient 연산이 매우 오래 걸리게 되는데, 이는 결국 파라미터 $W$를 한 번 업데이트 하기 위해서 엄청나게 긴 시간을 기달려야 한다는 뜻이 된다.
 그래서 실전에서는 Stochastic Gradient Descent (SGD)라고 불리는 알고리즘을 사용한다.
 SGD는 loss와 gradient를 계산할 때 모든 training set 전체를 사용하는 것이 아니라, traing set 중에서 샘플링한 몇 개의 데이터(=minibatch)를 사용한다.
 
