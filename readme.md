@@ -20,17 +20,123 @@
 
 ### 1) Review
 
-지금까지 파라미터 W가 포함된 함수 $f$를 사용해서 classifier를 만드는 방법을 배웠다.
-함수 $f$는 인풋으로 데이터 x를 받고, 각 class에 대한 score 값으로 구성된 벡터값을 아웃풋으로 출력한다.
+지금까지 파라미터 $W$가 포함된 함수 $f$를 사용해서 classifier를 만드는 방법을 배웠다.
+함수 $f$는 인풋으로 데이터 $x$를 받고, 각 class에 대한 score 값으로 구성된 벡터값을 아웃풋으로 출력한다.
 그리고 loss function을 정의해서 모델이 내뱉는 score가 얼마나 좋고 나쁜지를 수치화했다.
 그리고 total loss term이 포함된 $L$을 정의했는데, $L$은 data loss와 더 나은 generalization을 위해 간단한 모델을 선호하도록 모델이 얼마나 간단한지를 나타내는 regularization으로 구성된다.
 그 다음에는 가장 적은 loss에 해당하는 파라미터 W를 찾아야 한다.
-loss function을 최소화하는 파라미터 W를 찾기 위해 각 파라미터 W에 대한 L의 gradient를 구한다.
+loss function을 최소화하는 파라미터 $W$를 찾기 위해 각 파라미터 $W$에 대한 $L$의 gradient를 구한다.
 파라미터 optimization을 하는 방법은 loss landscape에서 loss가 가장 낮은 곳까지 도달하기 위해 각 지점마다 가장 가파른 곳인 negative of gradient 방향으로 반복적으로 이동하는 것이다.
 
 gradient를 계산하는 방법은 여러 가지 있었다.
 numerical gradient는 finite difference approximation을 이용해서 계산하는데 느리고, 정확하지 않지만, 작성하기 쉽다.
 analytic gradient는 공식이 정의되면 빠르고, 정확하지만 미분을 해야 하므로 여러 가지 수학 계산이 동반된다.
+
+### 2) Analytic Gradient for Complex Functions
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_03.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_03.png)
+
+오늘 이야기할 것은 복잡한 형태를 가진 임의의 함수(arbitraily complex functions)에서 analytic gradient를 구하는 방법이다.
+먼저 computational graph라고 부르는 framework를 사용할 것이다.
+computational graph는 어떤 함수든 나타낼 수 있다.
+graph에서 각 노드는 계산해야 할 단계를 나타낸다.
+
+위 그림은 SVM의 모델인 linear classifier를 graph로 표현한 것이다.
+input $x$와 파라미터 $W$ 두 값이 matrix multiplier를 통해 계산된다.
+matix multiplier 노드는 score값을 나타내는 벡터를 출력한다.
+벡터 score값은 hinge loss 노드를 통해 data lossdls $L_i$를 출력한다.
+이와 동시에 바닥에 있는 Regularization term을 통해 파라미터 $W$의 regularization loss를 출력한다.
+마지막으로 total loss인 $L$은 data loss와 regularization loss의 합으로 계산된다.
+
+computational graph의 장점은 함수를 graph로 나타낼 수 있다면, backpropagation을 할 수 있다는 것이다.
+backpropagation이란 computational graph에 있는 모든 변수에 대한 gradient를 계산하기 위해 미분 chain rule을 반복적으로 사용하는 것이다.
+
+backpropagation은 매우 복잡한 함수가 필요할 때 매우 유용하다.
+CNN의 경우 input 이미지에서 loss를 출력하기까지 굉장히 많은 layer를 통과해야 한다.
+layer가 많다는 것은 그만큼 함수의 복잡도가 커진다는 것을 의미한다.
+CNN뿐만 아니라 input 이미지부터 loss 출력까지 layer가 많이 필요한 모든 알고리즘에서 backpropagation은 유용하게 사용된다.
+
+이제 backpropagation이 어떻게 작동하는지 원리를 살펴보자.
+
+### 2) Backpropagation and Chain Rule
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_02.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_02.png)
+
+우리의 목적은 위 그림의 computational graph상에 존재하는 모든 변수 $x, y, z$ 각각에 대한 함수 $f$의 gradient를 계산하는 것이다.
+즉, $x, y, z$가 $f$에 미치는 영향의 크기를 계산하고자 한다.
+
+backpropagation을 진행하기 전에 setting을 미리 해놓자.
+먼저 input 변수에 값을 넣고 graph를 진행시켜서, 각 계산 노드(덧셈, 곱셈)에서 출력되는 intermediate value(중간 결과)를 구한다.
+덧셈과 곱셈으로 출력되는 intermediate variable을 각각 $q$와 $z$라고 하자.
+그리고 $x$와 $y$에 대한 $q$의 gradient를 구한다.
+마찬가지로 $q$와 $z$에 대한 $f$의 gradient를 구한다.
+setting이 끝났다.
+이제 $x, y, z$ 각각에 대한 $f$의 gradient를 구하면 된다.
+
+backpropagation은 앞서 말했듯이 chain rule을 반복적으로 적용하는 것이다.
+따라서 computational graph의 가장 마지막 지점부터 거꾸로 시작해서 첫 노드에 있는 변수에 대한 gradient를 차례대로 계산할 것이다.
+
+마지막에 있는 변수 $f$에 대한 output -12의 gradient를 계산한다.
+$f$가 곧 output 이므로 $\frac{\partial f}{\partial f}=1$이 된다.
+뒤로 거슬러 가서 $z$에 대한 $f$의 gradient를 구한다.
+setting에서 구했듯이 $\frac{\partial f}{\partial z}=q$가 된다.
+그리고 $q$의 값 또한 setting에서 구했듯이 $q=3$이다.
+다음으로 $q$에 대한 $f$의 gradient를 구한다.
+$\frac{\partial f}{\partial q}=z=-4$이다.
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_04.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_04.png)
+
+한 단계 더 뒤로 거슬러 가서 $\frac{\partial f}{\partial y}$를 구한다.
+$y$는 $f$와 직접적으로 연결되어 있지 않다.
+$y$는 intermediate variable인 $q$를 거쳐서 $f$와 연결된다.
+여기서 chain rule을 사용한다.
+chain rule에 의하면, $\frac{\partial f}{\partial y}=\frac{\partial f}{\partial q} \times \frac{\partial q}{\partial y}$가 된다.
+chain rule의 intuition이 여기서 나온다.
+$y$가 $f$에 미치는 영향의 크기는, $q$가 $f$에 미치는 영향에 $y$가 $q$에 미치는 영향을 곱한 것과 동일하다.
+그리고 setting에서 구했듯이 $\frac{\partial f}{\partial y}=\frac{\partial f}{\partial q} \times \frac{\partial q}{\partial y}=z \times 1 = -4$가 된다.
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_05.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_05.png)
+
+마찬가지 방식으로 computational graph상에 존재하는 모든 변수 $x, y, z$ 각각에 대한 함수 $f$의 gradient를 계산하면 위 그림과 같다.
+
+### Backpropagation
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_06.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_06.png)
+
+위 그림을 보면 알 수 있듯이, computational graph에 있는 노드들을 보면 각 노드는 가까운 주변 상황만 알 수 있다.
+각 노드는 노드마다 연결된 local input ($x, y$)이 있고, 노드를 통해 계산된 output ($z$) 값은 다음 노드로 전달된다.
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_07.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_07.png)
+
+그리고 각 노드에서는 local input에 대한 output의 gradient를 구할 수 있다.
+각 노드의 연산은 덧셈 아니면 곱셈이므로 노드의 local gradient를 구하는 것은 매우 간단한 연산이다.
+
+> **Note**: local gradient : 각 노드의 input에 대한 output의 gradient
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_08.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_08.png)
+
+backprop의 관점으로 확장해보자.
+backprop은 computational graph의 가장 마지막(아래)부터 backwards로 처음(위) 부분까지 거슬러 간다.
+처음에 본 computational graph는 왼쪽에서 오른쪽으로 진행되었는데, 지금부터는 그래프가 위에서 시작하고 아래로 도달한다고 생각하자.
+아래에서 위로 거슬러 올라가면서 각 노드에 도달할 때마다, 각 노드는 다음 노드의 gradient를 갖고 있다.
+즉, 현재 노드의 output인 $z$에 대한 final loss $L$의 gradient ($\frac{\partial L}{\partial z}$)를 이미 구한 상태이다.
+다음 할 일은 현재 노드 이전에 대한 gradient, 즉 $x$에 대한 gradient와 $y$에 대한 gradient를 구하는 것이다.
+이거는 아까 봤듯이 chain rule을 활용한다.
+$\frac{\partial L}{\partial x}$는 $\frac{\partial L}{\partial z} \times \frac{\partial z}{\partial x}$가 된다.
+
+#### Summary
+
+Backpropagation을 설명하는 핵심은 다음과 같다.
+각 노드의 local gradient를 모두 계산해놓는다.
+아래에서 위로 거슬러 올라가면서 아래 노드에서 구한 gradient를 chain rule을 통해 현재 노드의 local gradient와 곱한다.
+곱셈으로 나온 gradient를 이전 노드로 보낸다.
+이와 같은 방식으로 처음에 시작한 변수에 대한 마지막 함수값(loss)의 영향력을 알 수 있다.
+
+### Backpropagation :: Example
+
+`@@@resume: ~18:23`
+
+
 
 
 
@@ -115,11 +221,11 @@ ConvNets은 이미지의 raw pixel을 그대로 입력 받고 네트워크의 �
 
 ### 7) Optimization
 
-loss function을 정의하는 방법까지는 알겠는데, 실제로 loss를 최소화하는 W를 어떻게 찾을 수 있을까?
+loss function을 정의하는 방법까지는 알겠는데, 실제로 loss를 최소화하는 $W$를 어떻게 찾을 수 있을까?
 optimization을 직관적으로 이해하려면 등산하러 온 사람이 집으로 돌아가기 위해 산 정상에서 가장 낮은 곳으로 내려와야 하는 상황을 떠올리면 된다.
-이때 좌우로 움직일 때마다 변하는 좌표는 W를 의미하고, 좌표에 따라 낮아지거나 높아지는 산의 높이는 loss를 의미한다.
+이때 좌우로 움직일 때마다 변하는 좌표는 $W$를 의미하고, 좌표에 따라 낮아지거나 높아지는 산의 높이는 loss를 의미한다.
 
-모양이 단순한 산을 내려오는 일은 어려운 일이 아니지만, 모델 함수 f와 loss function, 그리고 regularizer 모두 매우 크고 복잡해진다면 minima에 다다르기 위한 명확한 해석적 방법(explicit analytic solution)을 찾기란 거의 불가능하다.
+모양이 단순한 산을 내려오는 일은 어려운 일이 아니지만, 모델 함수 $f$와 loss function, 그리고 regularizer 모두 매우 크고 복잡해진다면 minima에 다다르기 위한 명확한 해석적 방법(explicit analytic solution)을 찾기란 거의 불가능하다.
 그래서 실전에서는 여러 가지 반복적 방법을 사용한다.
 반복적 방법이란, 어떤 solution에서 시작하여 solution을 점점 더 향상시키는 방법을 뜻한다.
 
@@ -131,14 +237,14 @@ optimization을 직관적으로 이해하려면 등산하러 온 사람이 집�
 
 경사(slope)란 무엇일까?
 1차원 공간에서 경사는 1차원 함수를 미분한 스칼라 값을 말한다.
-우리가 다루는 벡터 x와 w는 다차원이다.
+우리가 다루는 벡터 $x$와 $w$는 다차원이다.
 다차원 공간에서 경사(gradient)는 다차원 함수를 편미분한 편미분 벡터를 말한다.
 편미분 벡터의 각 요소는 그 방향으로 움직일 경우 함수의 경사가 어떻게 되는지 말해준다.
 다시 말하면 편미분 벡터 gradient는 함수의 값이 가장 커지는 방향이 어딘지를 가리키고 있다.
 따라서 gradient 벡터의 반대 방향으로 가면 함수의 값이 가장 작아지는 방향이 된다.
 만약 다차원 공간에서 특정 방향에 대한 경사를 알고 싶다면, 특정 방향을 가진 unit vector에 gradient vector를 내적(dot product)하면 된다.
 gradient가 매우 중요한 이유는 현재 지점에서 모델 함수의 선형 일차 근사(linear, first-order approximation)를 제공하기 때문이다.
-실제로 딥러닝을 사용하는 수많은 경우에서 모델 함수의 gradient를 계산한 후 gradient를 사용해서 파라미터 벡터 w를 반복적으로 업데이트한다.
+실제로 딥러닝을 사용하는 수많은 경우에서 모델 함수의 gradient를 계산한 후 gradient를 사용해서 파라미터 벡터 $w$를 반복적으로 업데이트한다.
 
 > **Note**: 우리말로 slope나 gradient나 모두 경사를 뜻하지만, 다차원 공간의 경사(slope)는 따로 gradient라고 지칭한다. gradient는 벡터 값이므로 gradient vector라고도 말한다.
 
@@ -147,7 +253,7 @@ gradient가 매우 중요한 이유는 현재 지점에서 모델 함수의 선�
 ![L03-optimization-gradient-descent.png](images/L03-optimization-gradient-descent.png)
 
 gradient를 구할 줄 알면, 엄청나게 크고 가장 복잡한 딥러닝 알고리즘도 아주 쉽게 학습할 수 있다.
-gradient descent 알고리즘은 먼저 파라미터 W를 임의 값으로 초기화한 다음, loss와 gradient를 계산해서 gradient의 반대 방향으로 파라미터 W를 업데이트한다.
+gradient descent 알고리즘은 먼저 파라미터 $W$를 임의 값으로 초기화한 다음, loss와 gradient를 계산해서 gradient의 반대 방향으로 파라미터 $W$를 업데이트한다.
 앞서 말했듯이 gradient는 함수의 값이 가장 커지는 방향을 가리키고 있고, 우리는 loss function의 값을 줄여야 하기 때문에 gradient 반대 방향으로 업데이트 해야 한다.
 이렇게 gradient 반대 방향으로 한 스텝씩 이동하는 것을 꾸준히 반복하면, 모델이 어느 지점으로 수렴하게 될 것이다.
 여기서 스텝 사이즈는 hyperparameter이다.
@@ -161,7 +267,7 @@ gradient descent 알고리즘은 먼저 파라미터 W를 임의 값으로 초�
 2차원 공간으로 loss function이 표현된 예제에서 gradient descent 알고리즘이 어떻게 작동하는지 보자.
 가운데 빨간 영역은 loss가 가장 낮은 영역으로써 우리가 도달하고 싶은 곳이다.
 가장자리의 파란색과 보라색 영역은 loss가 높은 영역으로 우리가 피하고 싶은 곳이다.
-gradient descent 알고리즘을 실행하면, 먼저 파라미터 W를 공간 상에 임의의 지점으로 시작한다.
+gradient descent 알고리즘을 실행하면, 먼저 파라미터 $W$를 공간 상에 임의의 지점으로 시작한다.
 그리고 빨간색 영역에 있는 minima로 도달하도록 매 스텝마다 negative gradient direction을 계산해서 이동한다.
 
 gradient descent의 기본 원리는 매 스텝마다 gradient를 사용해서 다음 스텝으로 어디로 이동할지를 결정해서 매 스텝마다 내리막으로 이동하는 것이다.
@@ -207,7 +313,7 @@ SGD는 loss와 gradient를 계산할 때 모든 training set 전체를 사용하
 multi-class SVM의 모델 `f(x,W)`이 뱉어내는 각 class에 대한 score 값은 true class에 대한 score가 incorrect class에 대한 score보다 높으면 좋은 모델로 삼도록 loss function을 정의하도록 사용된다.
 하지만 score 값 자체가 어떤 의미인지는 알 수 없었다.
 가령, input 이미지를 넣었을 때 class cat에 대한 score가 3.2이고 class car에 대한 score가 5.1이라면 input 이미지가 car에 속할 가능성이 더 높다는 것은 알겠지만 3.2나 5.1이 가지는 의미가 무엇인지는 해석할 수가 없었다.
-**softmax classifier(=multinomial logistic regression)는 score를 "확률" 값 P로 바꿔준다**.
+softmax classifier(=multinomial logistic regression)는 score를 "확률" 값 P로 바꿔준다.
 
 ![L03-softmax2.png](images/L03-softmax2.png)
 
@@ -221,17 +327,17 @@ score 값을 각 class에 대한 probability distribution, 즉 $P$로 바꿨다.
 
 ![L03-softmax3.png](images/L03-softmax3.png)
 
-**loss를 정의하려면 $P$와 target probability distribution을 비교해야 한다**. target probability distribution을 살펴보면, true class에 대한 probability mass는 1이 되고 나머지 class에 대한 probability mass는 0이 된다.
+loss를 정의하려면 $P$와 target probability distribution을 비교해야 한다. target probability distribution을 살펴보면, true class에 대한 probability mass는 1이 되고 나머지 class에 대한 probability mass는 0이 된다.
 우리가 원하는 것은 $P$가 target probability distribution과 최대한 가까워지도록 만드는 것이다.
 
 > **Note**: $P$ : computed probability distribution
 
 $P$가 target probability distribution과 가까워지게 만드는 방법은 여러 가지가 있다.
 target probability distribution과 $P$(computed probability distribution) 사이의 KL-divergence를 구한다거나, 또는 MLE(최우추정법)을 사용할 수도 있다.
-방법이 무엇이 됐든 **우리가 원하는 최종 형태는 true class에 대한 probability가 1에 가까워야 한다는 것이다.
-그런데 다음과 같은 2가지 이유로 loss function의 형태는 negative log 형태가 된다**.
+방법이 무엇이 됐든 우리가 원하는 최종 형태는 true class에 대한 probability가 1에 가까워야 한다는 것이다.
+그런데 다음과 같은 2가지 이유로 loss function의 형태는 negative log 형태가 된다.
 
-첫째, log 형태가 되는 이유는 수학적으로 raw probability를 maximize하는 것보다 log log를 maxmize하는 것이 더 쉽기 때문이다.
+첫째, log 형태가 되는 이유는 수학적으로 raw probability를 maximize하는 것보다 log를 maxmize하는 것이 더 쉽기 때문이다.
 둘째, negative를 취하는 이유는 ture class에 대한 $\log P$를 maximize하게 되면 나쁜 정도가 아니라 좋은 정도를 측정하기 때문이다.
 loss는 파라미터의 나쁜 정도를 측정해야 하므로 negative를 취해야 한다.
 
@@ -286,11 +392,11 @@ overfitting을 방지하고자 regularization은 모델이 복잡할수록 penal
 ![L03-regualrization.png](images/L03-regualrization.png)
 
 그림과 같이 표준적인 loss function은 data loss와 regularization loss 이렇게 2가지 term을 포함한다.
-loss function L(W)에 data loss term을 넣어서 training data에 fit하게 만들뿐만 아니라, regularization term도 추가해서 model이 overfitting 되지 않도록 더 간단한 파라미터 W를 선택하도록 유도한다.
+loss function $L(W)$에 data loss term을 넣어서 training data에 fit하게 만들뿐만 아니라, regularization term도 추가해서 model이 overfitting 되지 않도록 더 간단한 파라미터 $W$를 선택하도록 유도한다.
 regularization term에 있는 lambda는 hyperparameter인데, data loss와 regularization loss의 trade-off를 의미한다.
 lambda는 모델을 tuning할 때 중요한 영향을 끼치는 hyperparameter이다.
 
-parameter W는 왜 간단할수록 좋을까?
+parameter $$는 왜 간단할수록 좋을까?
 과학적 발견에서 쓰이는 핵심적인 아이디어인 Occam's Razor에 따르면,
 "만약 관찰 데이터를 설명할 수 있는 모델이 여러 개 있다면, 더 간단한 모델을 선택해야 한다."
 왜냐하면 간단한 모델일수록 아직 나타나지 않은 새로운 데이터에 대해 일반화를 잘할 가능성이 더 높기 때문이다.
@@ -383,11 +489,11 @@ test data 1개를 prediction하려면 test data마다 가장 근접한 점 K개�
 이미지를 분류하기 위해 parameteric model을 사용할 수 있다.
 모든 training data의 정보를 모델의 parameter가 잘 담고 있으면, 한 번 만들어 놓은 모델로 아주 빠르게 prediction을 할 수 있다.
 parameteric model로 linear classifier가 있다.
-input 데이터 `x`와 parameter `W`를 linear하게 결합하는 것이 linear classifier이다.
+input 데이터 `x`와 parameter $W$를 linear하게 결합하는 것이 linear classifier이다.
 수식으로 나타내면 다음과 같다. `f(x,W) = Wx + b`
-여기서 `W`는 weight를 나타내는 term으로서 input 데이터와 곱해져서 input 데이터의 정보를 담고 있는 값이다.
-가령, `W`가 1이면 모든 곱해지는 값을 그대로 담을 수 있다.
-`b`는 bias term으로서 training data가 특정 class에 집중되었을 경우 특정 class에 더 높은 vote 값이 나오도록 하는 값이다.
+여기서 $W$는 weight를 나타내는 term으로서 input 데이터와 곱해져서 input 데이터의 정보를 담고 있는 값이다.
+가령, $W$가 1이면 모든 곱해지는 값을 그대로 담을 수 있다.
+$b$는 bias term으로서 training data가 특정 class에 집중되었을 경우 특정 class에 더 높은 vote 값이 나오도록 하는 값이다.
 예를 들어, training 데이터를 구성하는 cat : dog : ship 이미지의 비율이 6:2:2라면, 당연히 모델은 cat을 더 많이 예측하도록 보정해야 한다.
 
 ### 3) Example of linear classification
@@ -396,21 +502,21 @@ input 데이터 `x`와 parameter `W`를 linear하게 결합하는 것이 linear 
 
 linear model `f(x) = Wx+b`를 input 데이터에 적용하려면 input 데이터와 parameter의 shape(=차원)를 정확히 파악해야 한다.
 위 그림에서 input 이미지 `x`는 2 by 2 이미지이므로 flatten 하면 (4, 1)이 된다.
-`W` matrix는 input 이미지 모든 픽셀 수만큼 곱해줘야하므로 (?, 4)가 된다.
-`W` matrix의 row 수는 label을 구성하는 class 개수를 뜻하고 여기서는 cat, dog, ship 3종류만 있으므로 `W`의 shape는 (3, 4)가 된다.
-벡터 `b` 또한 각 class 개수만큼 필요하므로 (3, 1)이 된다.
+$W$ matrix는 input 이미지 모든 픽셀 수만큼 곱해줘야하므로 (?, 4)가 된다.
+$W$ matrix의 row 수는 label을 구성하는 class 개수를 뜻하고 여기서는 cat, dog, ship 3종류만 있으므로 $W$의 shape는 (3, 4)가 된다.
+벡터 $b$ 또한 각 class 개수만큼 필요하므로 (3, 1)이 된다.
 
-`W`의 개별 값들은 input image의 각 픽셀이 특정 class에 얼마나 영향을 미치는지 말해준다.
-행 단위로 보면 `W` matrix의 각 행은 특정 class를 찾아내는 filter인 셈이다.
+$W$의 개별 값들은 input image의 각 픽셀이 특정 class에 얼마나 영향을 미치는지 말해준다.
+행 단위로 보면 $W$ matrix의 각 행은 특정 class를 찾아내는 filter인 셈이다.
 가령, 살구색 첫 번째 행은 cat에 대한 유사성(similarity) 점수를, 보라색 두 번째 행은 dog에 대한 유사성 점수를, 녹색 세 번째 행은 ship에 대한 유사성 점수를 매긴다.
 `W*x`의 값을 구한 후에는 training data의 bias를 더해서 각 class에 대한 vote 값을 구한다.
 
 ### 4) linear classifier as template matching
 
 linear classification을 template matching의 관점에서 볼 수 있다.
-`W`의 행은 특정 class를 찾아내는 filter이므로 행을 구성하는 값을 픽셀 값으로 생각해서 하나의 이미지로 시각화할 수 있다.
+$W$의 행은 특정 class를 찾아내는 filter이므로 행을 구성하는 값을 픽셀 값으로 생각해서 하나의 이미지로 시각화할 수 있다.
 이를 template 이미지라고 한다.
-즉, `W`의 각 행은 특정 class에 해당하는 linear classifier이자 동시에 이미지 관점에서 보면 template 이미지를 의미한다.
+즉, $W$의 각 행은 특정 class에 해당하는 linear classifier이자 동시에 이미지 관점에서 보면 template 이미지를 의미한다.
 
 ![ExampleOfLinearClassification-template](images/L02-example-of-image-classification-template.png)
 
@@ -421,7 +527,7 @@ plane에 대한 template을 보면 가운데에 파란색 얼룩 같은 게 있�
 즉 plane에 대한 linear classifier는 파란색이나 파란색 얼룩을 찾아서 plane과의 유사성 점수를 매긴다.
 그런데 plane에 대한 template 이미지가 실제로 비행기처럼 생기지는 않았다.
 왜 그럴까?
-`W` matrix의 각 row는 오직 하나의 class에만 일대일 대응된다.
+$W$ matrix의 각 row는 오직 하나의 class에만 일대일 대응된다.
 바꿔 말하면, linear classifier는 각 class마다 하나의 template만 학습하도록 허용된다.
 그런데 생각해보면 같은 class의 이미지라도 생김새가 완전히 똑같을 수 없다.
 가령, 비행기 머리의 방향이 다를 수도 있고 색이나 배경이 다를 수도 있다.
