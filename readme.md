@@ -22,71 +22,72 @@
 
 지금까지 파라미터 $W$가 포함된 함수 $f$를 사용해서 classifier를 만드는 방법을 배웠다.
 함수 $f$는 인풋으로 데이터 $x$를 받고, 각 class에 대한 score 값으로 구성된 벡터값을 아웃풋으로 출력한다.
-그리고 loss function을 정의해서 모델이 내뱉는 score가 얼마나 좋고 나쁜지를 수치화했다.
+그리고 loss function을 정의해서 모델이 출력하는 score가 얼마나 좋고 나쁜지(data loss)를 수치화했다.
 그리고 total loss term이 포함된 $L$을 정의했는데, $L$은 data loss와 더 나은 generalization을 위해 간단한 모델을 선호하도록 모델이 얼마나 간단한지를 나타내는 regularization으로 구성된다.
-그 다음에는 가장 적은 loss에 해당하는 파라미터 W를 찾아야 한다.
+그 다음에는 가장 적은 loss에 해당하는 파라미터 $W$를 찾아야 한다.
 loss function을 최소화하는 파라미터 $W$를 찾기 위해 각 파라미터 $W$에 대한 $L$의 gradient를 구한다.
 파라미터 optimization을 하는 방법은 loss landscape에서 loss가 가장 낮은 곳까지 도달하기 위해 각 지점마다 가장 가파른 곳인 negative of gradient 방향으로 반복적으로 이동하는 것이다.
 
-gradient를 계산하는 방법은 여러 가지 있었다.
-numerical gradient는 finite difference approximation을 이용해서 계산하는데 느리고, 정확하지 않지만, 작성하기 쉽다.
+gradient를 계산하는 방법은 여러 가지 있다.
+numerical gradient는 finite difference approximation을 이용해서 계산하는 방법으로 느리고, 정확하지 않지만, 작성하기 쉽다.
 analytic gradient는 공식이 정의되면 빠르고, 정확하지만 미분을 해야 하므로 여러 가지 수학 계산이 동반된다.
 
 ### 2) Analytic Gradient for Complex Functions
 
 ![cs231n_2017_lecture4-backpropagation-nerualNetworks_03.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_03.png)
 
-오늘 이야기할 것은 복잡한 형태를 가진 임의의 함수(arbitraily complex functions)에서 analytic gradient를 구하는 방법이다.
-먼저 computational graph라고 부르는 framework를 사용할 것이다.
+오늘 이야기할 것은 복잡한 형태를 가진 임의의 함수(arbitrarily complex functions)에서 analytic gradient를 구하는 방법이다.
+computational graph라고 부르는 framework를 사용해서 구한다.
 computational graph는 어떤 함수든 나타낼 수 있다.
 graph에서 각 노드는 계산해야 할 단계를 나타낸다.
 
-위 그림은 SVM의 모델인 linear classifier를 graph로 표현한 것이다.
+위 그림은 SVM의 모델인 linear classifier를 graph로 표현했다.
 input $x$와 파라미터 $W$ 두 값이 matrix multiplier를 통해 계산된다.
-matix multiplier 노드는 score값을 나타내는 벡터를 출력한다.
-벡터 score값은 hinge loss 노드를 통해 data lossdls $L_i$를 출력한다.
-이와 동시에 바닥에 있는 Regularization term을 통해 파라미터 $W$의 regularization loss를 출력한다.
-마지막으로 total loss인 $L$은 data loss와 regularization loss의 합으로 계산된다.
+파란색 matix multiplier 노드는 score값을 나타내는 벡터를 출력한다.
+벡터 score값은 붉은색 hinge loss 노드를 통해 data loss인 $L_i$를 출력한다.
+이와 동시에 파라미터 $W$는 바닥에 있는 녹색 Regularization term을 통해 파라미터 $W$의 regularization loss인 $R(W)$를 출력한다.
+마지막으로 total loss인 $L$은 data loss를 나타내는 $L_i$와 regularization loss를 나타내는 $R(W)$의 합으로 계산된다.
 
-computational graph의 장점은 함수를 graph로 나타낼 수 있다면, backpropagation을 할 수 있다는 것이다.
-backpropagation이란 computational graph에 있는 모든 변수에 대한 gradient를 계산하기 위해 미분 chain rule을 반복적으로 사용하는 것이다.
+computational graph의 장점은 일단 함수를 graph로 나타내면, backpropagation을 할 수 있다는 점이다.
+backpropagation이란 computational graph에 있는 모든 변수에 대한 gradient를 계산하기 위해 도착점에서 출발점으로 거슬러 올라가면서(backward) 미분 chain rule을 반복적으로 사용하는 것이다.
 
-backpropagation은 매우 복잡한 함수가 필요할 때 매우 유용하다.
-CNN의 경우 input 이미지에서 loss를 출력하기까지 굉장히 많은 layer를 통과해야 한다.
+> **Note**: $\frac{\partial L}{\partial W}$ : gradient of $L$ with respect to $W$는 'W에 대한 L의 gradient'로 번역했다. 구체적인 의미는 $W$가 어느 방향으로 움직여야 $L$의 값이 가장 커지는지를 뜻한다. 좀 더 쉽게 이해하려면 $W$가 $L$에 미치는 영향의 크기라고 생각하면 된다.
+
+backpropagation은 매우 복잡한 함수를 사용할 때도 유용하다.
+CNN의 경우 input 이미지에서 loss를 출력하기까지 굉장히 많은 layer를 통과한다.
 layer가 많다는 것은 그만큼 함수의 복잡도가 커진다는 것을 의미한다.
-CNN뿐만 아니라 input 이미지부터 loss 출력까지 layer가 많이 필요한 모든 알고리즘에서 backpropagation은 유용하게 사용된다.
+CNN뿐만 아니라 input 이미지부터 loss 출력까지 많은 layer가 필요해서 함수의 형태가 매우 복잡한 알고리즘에서도 backpropagation은 유용하게 사용된다.
 
 이제 backpropagation이 어떻게 작동하는지 원리를 살펴보자.
 
-### 2) Backpropagation and Chain Rule
+### 2) Backpropagation and Chain Rule :: Example
 
 ![cs231n_2017_lecture4-backpropagation-nerualNetworks_02.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_02.png)
 
-우리의 목적은 위 그림의 computational graph상에 존재하는 모든 변수 $x, y, z$ 각각에 대한 함수 $f$의 gradient를 계산하는 것이다.
+우리의 목적은 위 그림 상단에 있는 computational graph상에 존재하는 모든 변수 $x, y, z$ 각각에 대한 함수 $f$의 gradient를 계산하는 것이다.
 즉, $x, y, z$가 $f$에 미치는 영향의 크기를 계산하고자 한다.
 
 backpropagation을 진행하기 전에 setting을 미리 해놓자.
-먼저 input 변수에 값을 넣고 graph를 진행시켜서, 각 계산 노드(덧셈, 곱셈)에서 출력되는 intermediate value(중간 결과)를 구한다.
+input 변수에 각각 값을 넣고 graph를 앞으로 진행(feed forward)시켜서, 각 계산 노드(덧셈, 곱셈)에서 출력되는 intermediate value(중간 결과)를 구한다.
 덧셈과 곱셈으로 출력되는 intermediate variable을 각각 $q$와 $z$라고 하자.
-그리고 $x$와 $y$에 대한 $q$의 gradient를 구한다.
-마찬가지로 $q$와 $z$에 대한 $f$의 gradient를 구한다.
+그리고 빨간색 네모박스처럼 $x$와 $y$에 대한 $q$의 gradient를 구한다.
+마찬가지로 파란색 네모박스처럼 $q$와 $z$에 대한 $f$의 gradient를 구한다.
 setting이 끝났다.
 이제 $x, y, z$ 각각에 대한 $f$의 gradient를 구하면 된다.
 
-backpropagation은 앞서 말했듯이 chain rule을 반복적으로 적용하는 것이다.
-따라서 computational graph의 가장 마지막 지점부터 거꾸로 시작해서 첫 노드에 있는 변수에 대한 gradient를 차례대로 계산할 것이다.
+backpropagation은 앞서 말했듯이 backward 방향으로 chain rule을 반복적으로 적용하는 것이다.
+computational graph의 가장 마지막 지점부터 거꾸로 시작해서 첫 노드에 있는 변수에 대한 gradient를 차례대로 계산해보자.
 
-마지막에 있는 변수 $f$에 대한 output -12의 gradient를 계산한다.
-$f$가 곧 output 이므로 $\frac{\partial f}{\partial f}=1$이 된다.
-뒤로 거슬러 가서 $z$에 대한 $f$의 gradient를 구한다.
-setting에서 구했듯이 $\frac{\partial f}{\partial z}=q$가 된다.
-그리고 $q$의 값 또한 setting에서 구했듯이 $q=3$이다.
+먼저 마지막에 있는 output부터 시작한다.
+$f$가 곧 output이므로 변수 $f$에 대한 $f$의 gradient는 $\frac{\partial f}{\partial f}=1$이 된다.
+뒤로 거슬러 올라가서 $z$에 대한 $f$의 gradient를 구한다.
+setting에서 구했듯이 $f=qz$이므로 $\frac{\partial f}{\partial z}=q$가 되고, $q$값은 $x+y$이므로 $\frac{\partial f}{\partial z}=q=3$이다.
 다음으로 $q$에 대한 $f$의 gradient를 구한다.
 $\frac{\partial f}{\partial q}=z=-4$이다.
 
 ![cs231n_2017_lecture4-backpropagation-nerualNetworks_04.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_04.png)
 
-한 단계 더 뒤로 거슬러 가서 $\frac{\partial f}{\partial y}$를 구한다.
+중요한 것은 한 단계 더 뒤로 거슬러 가서 $\frac{\partial f}{\partial y}$를 구하는 것이다.
 $y$는 $f$와 직접적으로 연결되어 있지 않다.
 $y$는 intermediate variable인 $q$를 거쳐서 $f$와 연결된다.
 여기서 chain rule을 사용한다.
@@ -108,7 +109,8 @@ $y$가 $f$에 미치는 영향의 크기는, $q$가 $f$에 미치는 영향에 $
 
 ![cs231n_2017_lecture4-backpropagation-nerualNetworks_07.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_07.png)
 
-그리고 각 노드에서는 local input에 대한 output의 gradient를 구할 수 있다.
+각 노드에서는 local input에 대한 output의 gradient를 구할 수 있다.
+input 값에 따라 output 값이 어떻게 달라지는지 구할 수 있다는 뜻이다.
 각 노드의 연산은 덧셈 아니면 곱셈이므로 노드의 local gradient를 구하는 것은 매우 간단한 연산이다.
 
 > **Note**: local gradient : 각 노드의 input에 대한 output의 gradient
@@ -116,25 +118,59 @@ $y$가 $f$에 미치는 영향의 크기는, $q$가 $f$에 미치는 영향에 $
 ![cs231n_2017_lecture4-backpropagation-nerualNetworks_08.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_08.png)
 
 backprop의 관점으로 확장해보자.
-backprop은 computational graph의 가장 마지막(아래)부터 backwards로 처음(위) 부분까지 거슬러 간다.
-처음에 본 computational graph는 왼쪽에서 오른쪽으로 진행되었는데, 지금부터는 그래프가 위에서 시작하고 아래로 도달한다고 생각하자.
-아래에서 위로 거슬러 올라가면서 각 노드에 도달할 때마다, 각 노드는 다음 노드의 gradient를 갖고 있다.
-즉, 현재 노드의 output인 $z$에 대한 final loss $L$의 gradient ($\frac{\partial L}{\partial z}$)를 이미 구한 상태이다.
-다음 할 일은 현재 노드 이전에 대한 gradient, 즉 $x$에 대한 gradient와 $y$에 대한 gradient를 구하는 것이다.
-이거는 아까 봤듯이 chain rule을 활용한다.
+backprop은 computational graph의 가장 마지막(end)부터 backwards로 처음(begnning)까지 거슬러 간다.
+이미 각 노드에 대한 local gradient를 구한 상태이다.
+반대 방향으로 거슬러 가면 각 노드에 도달할 때마다, 이전 노드의 local gradient가 전달된다.
+위 그림에서는 빨간색 화살표로 표시된 $\frac{\partial L}{\partial z}$에 해당된다.
+즉, 현재 노드의 output인 $z$값에 따라 final loss $L$이 어떻게 변하는지 gradient ($\frac{\partial L}{\partial z}$)를 이미 구한 상태이다.
+이와 같은 방식으로 현재 노드의 local gradient가 이전 노드로 전달된다.
+이를 upstream gradient라고 한다.
+
+> **Note**: 폭포수처럼 위에서 아래로 진행하는 방향이 순방향이라고 할 때, 아래에서 위로 거꾸로 거스르는 방향은 역방향이다.
+역방향은 아래에서 위로 올라가므로 upstream gradient라고 표현한다.
+
+위 그림에서 $x$에 대한 $L$의 gradient를 구할 때 chain rule을 활용한다.
 $\frac{\partial L}{\partial x}$는 $\frac{\partial L}{\partial z} \times \frac{\partial z}{\partial x}$가 된다.
 
 #### Summary
 
 Backpropagation을 설명하는 핵심은 다음과 같다.
 각 노드의 local gradient를 모두 계산해놓는다.
-아래에서 위로 거슬러 올라가면서 아래 노드에서 구한 gradient를 chain rule을 통해 현재 노드의 local gradient와 곱한다.
-곱셈으로 나온 gradient를 이전 노드로 보낸다.
-이와 같은 방식으로 처음에 시작한 변수에 대한 마지막 함수값(loss)의 영향력을 알 수 있다.
+그 다음, 아래에서 위로 거슬러 올라가면서 이미 구한 upstream gradient를 chain rule을 통해 현재 노드의 local gradient와 곱한다.
+가령, local gradient $\times$ upstream gradient를 하면 1단계 input에 대한 3단계 output의 gradient를 구하게 된다.
+같은 방식을 반복 적용하여 처음에 시작한 변수까지 거슬러 가면, input과 output 사이에 아무리 많은 노드가 있어도 input 변수에 대한 마지막 함수값(loss)의 영향력을 계산할 수 있다.
 
-### Backpropagation :: Example
+### Backpropagation :: Exercise and Insight
 
-`@@@resume: ~18:23`
+Q. 아래 문제를 푸시오.
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_09.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_09.png)
+
+Hint. 잘 풀고 있는지 확인하려면 아래 그림을 봐도 된다.
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_10.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_10.png)
+
+A. 정답은 아래와 같다.
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_11.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_11.png)
+
+계산 과정을 통해 backpropagation의 insight를 정리할 수 있다.
+우리가 다룬 것은 local gradient에 대한 계산 공식(expression)이다.
+따라서 일단 local gradient에 대한 expression만 작성해두면, 우리가 할 일은 그저 expression에 값을 넣어주고 거꾸로 진행하면서 chain rule을 활용해서 숫자 곱셈을 해서 각 변수에 대한 gradient를 구하는 것이다.
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_12.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_12.png)
+
+또한 computational graph에 있는 node는 얼마든지 grouping 할 수 있다.
+가령, sigmoid function의 경우 하나의 노드로 정리할 수 있다.
+(sigmoid function의 local gradient는 그림 내 두 번째 줄에 나와 있다)
+다만, 여러 개의 노드를 하나로 합치면 그만큼 graph가 간결해지는 반면, gradient 계산은 점점 복잡해지는 trade-off가 있다.
+
+어떤 복잡한 함수의 gradient를 구해야 하는데 굉장히 어려울 때가 있다.
+그럴 때는 computational graph를 활용해서 여러 개의 노드로 잘게 쪼개서 (break down) chain rule을 사용하면 쉽게 구할 수 있다.
+
+### gradient pattern
+
+### not numbers but vectors
 
 
 
