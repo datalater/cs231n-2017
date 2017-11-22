@@ -51,7 +51,7 @@ parameter값이 loss function에 미치는 영향(=변화율)인 gradient를 구
 
 + derivative 의미 : 특정 변수가 함수값에 미치는 영향(=변화율)
 + $f(x+h)=f(x)+h\frac{df(x)}{dx}$
-  + tells $x$가 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}$"만큼 증가한다.
+  > **Tells**: $x$가 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}$"만큼 증가한다.
 
 **Example**:
 
@@ -61,40 +61,102 @@ parameter값이 loss function에 미치는 영향(=변화율)인 gradient를 구
 + $x = 4, y=-3$
 + gradient on $x$ (=partial derivative on $x$)
   + $\frac{\partial f}{\partial x} = y = -3$
-  + tells $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=hy=-3h$"만큼 감소한다.
+  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=hy=-3h$"만큼 감소한다.
+
 + gradient on $y$ (=partial derivative on $y$)
   + $\frac{\partial f}{\partial y} = x = 4$
-  + tells $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=hx=4h$"만큼 증가한다.
+  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=hx=4h$"만큼 증가한다.
 
 (2) Addition
 
 + $f(x,y)=x+y$
 + gradient on $x$
   + $\frac{\partial f}{\partial x} = 1$
-  + tells $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=h$"만큼 (1:1비율로) 증가한다.
+  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=h$"만큼 (1:1비율로) 증가한다.
+
 + gradient on $y$ (=partial derivative on $y$)
   + $\frac{\partial f}{\partial y} = 1$
-  + tells $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=h$"만큼 (1:1비율로) 증가한다.
+  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=h$"만큼 (1:1비율로) 증가한다.
 
 (3) Max
 
 + $f(x,y)=max(x,y)$
 + gradient on $x$
   + if, $x \ge y \Rightarrow \frac{\partial f}{\partial x} = 1$
-    + tells $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=h$"만큼 (1:1비율로) 증가한다.
+  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=h$"만큼 (1:1비율로) 증가한다.
+
   + if, $x < y \Rightarrow \frac{\partial f}{\partial x} = 0$
-    + tells $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=0$"만큼 증가한다. 즉, $x$값의 변화는 $f$값에 아무런 영향을 미치지 않는다.
+  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=0$"만큼 증가한다. 즉, $x$값의 변화는 $f$값에 아무런 영향을 미치지 않는다.
+
 + gradient on $y$
   + if, $y \ge x \Rightarrow \frac{\partial f}{\partial y} = 1$
-    + tells $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=h$"만큼 (1:1비율로) 증가한다.
+  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=h$"만큼 (1:1비율로) 증가한다.
+
   + if, $y < x \Rightarrow \frac{\partial f}{\partial y} = 0$
-    + tells $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=0$"만큼 증가한다. 즉, $y$값의 변화는 $f$값에 아무런 영향을 미치지 않는다.
+  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=0$"만큼 증가한다. 즉, $y$값의 변화는 $f$값에 아무런 영향을 미치지 않는다.
+
 + gradient $\triangledown f$ = $[\frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}]$
   + 더 큰 input값의 gradient는 1, 더 작은 input 값의 gradient는 0이다.
 
 
 ### III. Compound expressions with chain rule
 
+**Complicated expressions**:
 
++ function : $f(x, y, z) = (x+y)z$
++ gradient
+  1. $\frac{df}{dx}$
+  2. $\frac{df}{dy}$
+  3. $\frac{df}{dz}$
+
+**Break down into multiplication**:
+
++ $f = (x+y)z$
++ $q = x + y$
++ $f = qz$
+
+**Compute derivatives separately**:
+
++ $f = qz$
+  + $\frac{\partial f}{\partial q} = z$ : chain의 연결고리로 사용된다.
+  + $\frac{\partial f}{\partial z} = q$ : gradient 3.
++ $q = x + y$
+  + $\frac{\partial q}{\partial x} = 1$ : chain의 연결고리로 사용된다.
+  + $\frac{\partial q}{\partial y} = 1$ : chain의 연결고리로 사용된다.
+
+**Gradient 1 & 2**:
+
++ gradient 1 : $\frac{df}{dx} = \frac{\partial f}{\partial q} \cdot \frac{\partial q}{\partial x}$
++ gradient 2 : $\frac{df}{dy} = \frac{\partial f}{\partial q} \cdot \frac{\partial q}{\partial y}$
+
+**Example code**:
+
+```python
+# set some inputs
+x = -2; y = 5; z = -4;
+
+# perform the forward pass
+q = x + y  # q becomes 3
+f = q * z  # f becomes -12
+
+# perform the backward pass (backpropagation) in reverse order:
+# first backprop through f = q * z
+dfdz = q  # df/dz = q, so gradient on z becomes 3
+dfdq = z  # df/dq = z, so gradient on q becomes -4
+
+# dqdx and dqdy
+dqdx = 1.0
+dqdy = 1.0
+
+# now backprop through q = x + y
+dfdx = dfdq * dqdx  # dfdx = 1.0. This multiplication here is the chain rule!
+dfdy = dfdq * dqdy  # dfdy = 1.0
+
+print("dfdx: %d \ndfdy: %d \ndfdz: %d" %(dfdx, dfdy, dfdz))
+```
+
+### IV. Intuitive understanding of backpropagation
+
+`@@@resume`
 
 ---
