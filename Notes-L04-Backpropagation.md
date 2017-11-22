@@ -1,8 +1,8 @@
 
 ⓒ JMC 2017
 
-- [CS231N Video - Playlist](https://www.youtube.com/playlist?list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv)  
-- [CS231N Notes - Backpropgation](http://cs231n.github.io/optimization-2/)
++ [CS231N Video - Playlist](https://www.youtube.com/playlist?list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv)  
++ [CS231N Notes - Backpropgation](http://cs231n.github.io/optimization-2/)
 
 ---
 
