@@ -1,8 +1,13 @@
 
 ⓒ JMC 2017
 
-[CS231n_2017 (YouTube)](https://www.youtube.com/playlist?list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv)
+**SOURCE**: [CS231n_2017 (YouTube)](https://www.youtube.com/playlist?list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv)
 
+---
+
+## NBviewer link
+
++ [Notes-L04-Backpropagation.ipynb](http://nbviewer.jupyter.org/github/datalater/cs231n_2017/blob/master/Notes-L04-Backpropagation.ipynb)
 
 ---
 
