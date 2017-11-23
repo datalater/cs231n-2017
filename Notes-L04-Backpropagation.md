@@ -26,7 +26,7 @@ parameter를 어떻게 변화시켜야 loss가 줄어들까.
 parameter값이 loss function에 미치는 영향(=변화율)인 gradient를 구하면 해결할 수 있다.
 
 + function: $f(x) = L$(loss function)
-+ input: $x$
++ input: $x$  
   1. training data: $(x_i, y_i)$
   2. weights: $W, b$
 + gradient:
@@ -51,7 +51,8 @@ parameter값이 loss function에 미치는 영향(=변화율)인 gradient를 구
 
 + derivative 의미 : 특정 변수가 함수값에 미치는 영향(=변화율)
 + $f(x+h)=f(x)+h\frac{df(x)}{dx}$
-  > **Tells**: $x$가 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}$"만큼 증가한다.
+
+> **Tells**: $x$가 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}$"만큼 증가한다.
 
 **Example**:
 
@@ -59,44 +60,34 @@ parameter값이 loss function에 미치는 영향(=변화율)인 gradient를 구
 
 + $f(x,y) = xy = -12$
 + $x = 4, y=-3$
-+ gradient on $x$ (=partial derivative on $x$)
-  + $\frac{\partial f}{\partial x} = y = -3$
-  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=hy=-3h$"만큼 감소한다.
++ gradient on $x$ (=partial derivative on $x$) : $\frac{\partial f}{\partial x} = y = -3$
++ gradient on $y$ (=partial derivative on $y$) : $\frac{\partial f}{\partial y} = x = 4$
 
-+ gradient on $y$ (=partial derivative on $y$)
-  + $\frac{\partial f}{\partial y} = x = 4$
-  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=hx=4h$"만큼 증가한다.
+> **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=hy=-3h$"만큼 감소한다. $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=hx=4h$"만큼 증가한다.
 
 (2) Addition
 
 + $f(x,y)=x+y$
-+ gradient on $x$
-  + $\frac{\partial f}{\partial x} = 1$
-  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=h$"만큼 (1:1비율로) 증가한다.
++ gradient on $x$ : $\frac{\partial f}{\partial x} = 1$
++ gradient on $y$ (=partial derivative on $y$) : $\frac{\partial f}{\partial y} = 1$
 
-+ gradient on $y$ (=partial derivative on $y$)
-  + $\frac{\partial f}{\partial y} = 1$
-  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=h$"만큼 (1:1비율로) 증가한다.
+> **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=h$"만큼 (1:1비율로) 증가한다. $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=h$"만큼 (1:1비율로) 증가한다.
 
 (3) Max
 
 + $f(x,y)=max(x,y)$
 + gradient on $x$
   + if, $x \ge y \Rightarrow \frac{\partial f}{\partial x} = 1$
-  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=h$"만큼 (1:1비율로) 증가한다.
-
   + if, $x < y \Rightarrow \frac{\partial f}{\partial x} = 0$
-  > **Tells**: $x$값이 $h$만큼 증가하면, $f$값은 "$x$의 gradient 값$ \times h = h\frac{df(x)}{dx}=0$"만큼 증가한다. 즉, $x$값의 변화는 $f$값에 아무런 영향을 미치지 않는다.
-
 + gradient on $y$
   + if, $y \ge x \Rightarrow \frac{\partial f}{\partial y} = 1$
-  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=h$"만큼 (1:1비율로) 증가한다.
-
   + if, $y < x \Rightarrow \frac{\partial f}{\partial y} = 0$
-  > **Tells**: $y$값이 $h$만큼 증가하면, $f$값은 "$y$의 gradient 값$ \times h = h\frac{df(y)}{dy}=0$"만큼 증가한다. 즉, $y$값의 변화는 $f$값에 아무런 영향을 미치지 않는다.
-
 + gradient $\triangledown f$ = $[\frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}]$
-  + 더 큰 input값의 gradient는 1, 더 작은 input 값의 gradient는 0이다.
+
+> **Tells**: 더 큰 input값의 gradient는 1이다. input이 $h$만큼 증가하면, $f$값은 "input의 gradient 값$ \times h = h\frac{df(input)}{dinput}=h$"만큼 (1:1비율로) 증가한다.
+
+> **Tells**: 더 작은 input값의 gradient는 0이다.
+input값이 $h$만큼 증가하면, $f$값은 "input의 gradient 값$ \times h = h\frac{df(input)}{dinput}=0$"만큼 증가한다. 즉, input값의 변화는 $f$값에 아무런 영향을 미치지 않는다.
 
 
 ### III. Compound expressions with chain rule
