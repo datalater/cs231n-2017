@@ -82,7 +82,7 @@ parameter값이 loss function에 미치는 영향(=변화율)인 gradient를 구
 + gradient on $y$
   + if, $y \ge x \Rightarrow \frac{\partial f}{\partial y} = 1$
   + if, $y < x \Rightarrow \frac{\partial f}{\partial y} = 0$
-+ gradient $\triangledown f$ = $[\frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}]$
++ gradient $\triangledown f= \left[\frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}\right]$
 
 > **Tells**: 더 큰 input값의 gradient는 1이다. input이 $h$만큼 증가하면, $f$값은 "input의 gradient 값$ \times h = h\frac{df(input)}{dinput}=h$"만큼 (1:1비율로) 증가한다.
 
@@ -148,6 +148,38 @@ print("dfdx: %d \ndfdy: %d \ndfdz: %d" %(dfdx, dfdy, dfdz))
 
 ### IV. Intuitive understanding of backpropagation
 
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_06.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_06.png)
+
+**Local**:
+
+전체 graph와 별개로 개별 연산 node에서 output과 local gradient를 구한다.
+
++ (1) compute output : $f(x, y) = z$
++ (2) compute local gradient of its output at its inputs: $\left[\frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}\right]$
+
+> **Note**: local gradient = gradient of its output at its inputs
+
+**One forward pass, One backward pass**
+
+forward pass가 앞으로 한 번 발생하면 개별 연산 node에 input이 들어가고 전체 graph의 final output이 나온다.
+이때 backward pass로 뒤로 거슬러 올 때 local에서 구한 local gradient와 final output의 gradient를 chain하면 개별 연산 node의 input에 대한 final output의 gradient를 구할 수 있다.
+
++ (3) compute gradient of final output at its output: $\frac{\partial L}{\partial z}$
++ (4) chain gradients: gradient $\times$ local gradient
+  + $= \left[\frac{\partial L}{\partial z} \times \frac{\partial z}{\partial x}, \frac{\partial L}{\partial z} \times \frac{\partial z}{\partial y}\right]$
+  + $= \left[\frac{\partial L}{\partial x}, \frac{\partial L}{\partial y}\right]$
+
+> **Note**: (4) gradient = gradient of final output its inputs = (2) $\times$ (3)
+
+![cs231n_2017_lecture4-backpropagation-nerualNetworks_08.png](images/cs231n_2017_lecture4-backpropagation-nerualNetworks_08.png)
+
+### V. Modularity: Sigmoid example
+
 `@@@resume`
+
+---
+
+
+
 
 ---
