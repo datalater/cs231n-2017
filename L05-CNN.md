@@ -1,6 +1,8 @@
 
 ⓒ 2017 JMC
 
+**NB Viewer** : http://nbviewer.jupyter.org/github/datalater/cs231n-2017/blob/master/L05-CNN.ipynb
+
 ---
 
 ## L05 Convolutional Neural Networks
