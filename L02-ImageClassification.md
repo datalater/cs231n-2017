@@ -5,14 +5,54 @@
 
 ---
 
+## NEXT (JMC)
+
++ L03 p.1~p.36
+
+---
+
+## 20180113 Study Notes
+
+**21**:
+
++ `np.sum(matrix, axis=1)` = 로우끼리의 합 = 칼럼 벡터
++ `np.sum(matrix, axis=0)` = 칼럼끼리의 합 = 로우 벡터
+
+**31**:
+
++ L1 관점의 원 : 서로 거리가 같은 게 원이라는 정의에 부합함.
++ L1 coordinate system이 rotate 되면 L1의 거리가 변한다.
+
+**42**:
+
++ k=7일 때, cross-validation accuracy의 mean이 가장 높기 때문에 k=7이 best hyperparameter가 된다.
+
+**57**:
+
++ 두 개의 머리를 가진 말 : 분류기 하나로는 말 이미지를 학습하려고 하다 보니 두 개의 머리가 가지게 됨. 그래서 분류기를 여러 개 있는 딥러닝 모델을 만들어야 한다.
+
+**58**:
+
++ bias : bias가 없으면 모두 원점을 지나게 되므로 분류가 제대로 되지 않게 된다. car를 분류하려면 car에 대한 bias가 다른 분류에 대한 bias 보다 더 커야 한다. (inProgress)
+
+**59**:
+
++ left case : XOR 문제
+  + ex. 픽셀 2개로 이뤄진 이미지라고 가정하고 2개의 픽셀 값의 부호에 따라 나눈 거라고 생각하면 됨.
++ 선 하나로 구분되는 문제들이 많기 때문에 그래서 딥러닝을 해야 한다.
+
+**END**
+
+---
+
 ## L02 Image Classification
 
 ### 01 이미지 분류가 어려운 이유
 
 **Semantic Gap**:
 
-컴퓨터가 이미지 분류를 하기 어려운 이유는 semantic gap이 존재하기 때문이다.
-이미지가 사람이 볼 때는 고양이지만, 컴퓨터가 볼 때는 픽셀값이기 때문에 '고양이'라는 label과 픽셀값 사이에는 커다란 갭이 존재한다.
+컴퓨터가 이미지 분류를 하기 어려운 이유는 사람이 보는 이미지와 컴퓨터가 보는 이미지 사이에 semantic gap이 존재하기 때문이다.
+이미지를 사람이 볼 때는 고양이지만, 컴퓨터가 볼 때는 픽셀값이기 때문에 '고양이'라는 label과 픽셀값 사이에는 커다란 갭이 존재한다.
 이를 semantic gap이라고 한다.
 
 ### 02 이미지 분류를 하는 방법
@@ -35,7 +75,7 @@ def predict(model, test_images):
 return test_labels
 ```
 
-규칙을 하나하나 만들기에는 고려해야 할 요소가 너무나 많아서 통제가 불가능할 정도이다.
+이미지를 분류하기 위해 필요한 모든 규칙을 알아내는 것도 거의 불가능하고, 무수한 규칙을 일일이 코드로 짜는 것 또한 불가능하다.
 가능한 방법은 데이터에 기반한 접근법을 사용하는 것이다.
 (1) 이미지와 레이블로 구성된 데이터셋을 모으고, (2) 머신러닝으로 classifier를 훈련시킨 다음, (3) 새로운 이미지에 대해 classifier를 적용시키는 3단계 방법을 사용하면 된다.
 
@@ -131,9 +171,10 @@ K-NN classifier가 어떻게 분류를 했는지 그 원리를 되돌아보면, 
 
 ### 04 Linear Classification (inProgress)
 
+딥러닝 모델을 구성하는 가장 기본적인 단위 중 하나는 linear classifier이다.
+그래서 linear classification을 하면 어떤 일이 일어나는지 아는 것은 매우 중요하며, 이에 대한 이해가 바탕이 되어야 신경망 전체에 대해서 이해를 할 수 있다.
 
-
-One of the most basic building blocks that we'll see in different types of deep learning applications is this linear classifier. So I think it's actually really important to have a good understanding of what's happening with linear classification. Because these will end up generalizing quite nicely to whole neural networks. So another example of kind of this modular nature of neural networks comes from some research in our own lab on image captioning, just as a little bit of a preview. So here the setup is that we want to input an image and then output a descriptive sentence describing the image. And the way this kind of works is that we have one convolutional neural network that's looking at the image, and a recurrent neural network that knows about language. And we kind of just stick these two pieces together like Lego blocks and train the whole thing together and end up with a pretty cool system that can do some non-trivial things. And we'll work through the details of this model as we go forward in the class, but this just gives you the sense that, these deep learning networks are kind of like Legos and this linear classifier is kind of like the most basic building blocks of these giant networks. But that's a little bit too exciting for lecture two, so we have to go back to CIFAR-10 for the moment.
+In linear classificaiton, we're going to take a bit of a different approach from k-nearest neighbor. So, the linear classifier is one of the simplest examples of what we call a parametric model. So now, our parametric model actually has two different components. It's going to take in this image, maybe, of a cat on the left, and this, that we usually write as X for our input data, and also a set of parameters, or weights, which is usaually called W, also sometimes theta, depending on the literature. And now,  we're going to write down some function which takes in both the data, X, and the parameters, W, and this'll spit out now 10 numbers describing what are the scores corresponding to each of these 10 categories in CIFAR-10. With the interpretation that, like the larger score for cat, indicates a large probability of that input X being cat.
 
 K-NN에서는 parameter가 없었다. parametric model은 training data의 지식을 요약한 후, 요약한 지식을 parameter에 집어 넣는다. 그래서 test할 때는 training data가 필요 없게 된다. parameter만으로 test할 수 있으므로 훨씬 더 효율적이고 computing power가 약한 모바일에서도 모델을 돌릴 수 있는 것이다.
 

@@ -67,9 +67,18 @@ CNN은 여러 개의 activation function과 여러 개의 convolutional layer가
 중간에 있는 conv layer의 filter는 corner나 blob 같은 좀 더 복잡한 mid-level feature를 represent한다.
 뒷단에 있는 conv layer의 filter는 blob 보다 더 복잡한 high-level feature를 represent한다.
 
+
+
 `@@@resume`: https://youtu.be/bNb2fEVKeEo?t=27m
 
+---
 
+### Quote
+
++ Each of these grid, each part of this grid is a one neuron. And so what we've visualized here is what the input looks like that maximizes the activation of the particular neuron. So what sort of image you would get that would give you the largest value, make that neuron fire and have the largest value. And so the way we do this is basically by doing backpropagation from a particular neuron activation and seeing what in the input will trigger, will give you the highest values of this neuron. Basically each element of these grids is showing what in the input would look like that basically maximizes the activation of the neuron. So in a sense, what is the neuron looking for?
+  + A. feature map에 대한 이미지가 무엇을 가리키는가? A. 뉴런이 감지하는 가장 큰 값들로 이미지를 시각화한 것 == 뉴런이 가장 활성화될 때의 값 == 뉴런이 찾고 있는 이미지
++ convolutionaly layer라고 부르는 이유 : And so the reason why we call these convolutioal is because this is related to the convolution of two signals, and so someone pointed out earlier that this is basically this convolution equation over here, for people who have seen convolutions before in signal processing, and in practice it's actually more like a correlation where we're convolving with the flipped version of the filter, but this is kind of a subtlety, it's not really important for the purposes of this class.
+  + CNN을 구성하는 convolutional layer에서 filter와 input의 spatial location을 dot product하는 공식이 신호 처리의 convolution공식과 비슷하기 때문에 covolutional layer라고 부르게 되었음.
 
 
 
