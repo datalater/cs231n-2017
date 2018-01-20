@@ -62,11 +62,11 @@ weight matrix의 각 row가 각 클래스에 대한 score에 영향을 미치는
 이게 loss function의 아이디어인데, 그 다음에 우리가 필요한 건 모든 가능한 W값을 찾아보는 효율적인 절차가 필요하고 나쁜 정도가 가장 적은 W를 찾아낼 수 있어야 한다.
 이러한 과정을 optimization이라고 한다.
 
-**09**:
+**09 각 이미지별로 score가 잘 나왔는지 살펴본다**:
 
 score를 좋고 나쁨의 기준으로 보면, 고양이 이미지는 score가 나쁘고, car 이미지는 score고 좋고, frog 이미지는 score가 굉장히 나쁘다.
 
-**10**:
+**10 classifier의 좋고 나쁨을 수학적으로 나타내본다**:
 
 방금 말한 내용을 수학적으로 정리해서 말하면,
 loss function을 이야기할 때 먼저 (x, y)로 이루어진 training set이 있고 N개가 있다고 상상한다.
@@ -76,17 +76,20 @@ CIFAR-10은 class가 10개이므로 label의 값은 0~9 사이의 정수값이 �
 각 training set에 대한 loss는 $L_i$라고 나타낸다.
 $f(x_i, W)$는 prediction function을 나타낸다.
 prediction function의 결과값인 score와 label y의 차이를 구하는 함수가 $L_i$로 써있는 loss function이다.
-그리고 아래 첨자 i가 없는 최종(final) loss function $L$은 모든 N개의 input에 대한 loss를 평균을 낸 값이 된다.
+그리고 아래 첨자 i가 없는 최종(final) loss function $L$은 training set 모든 $N$개의 input에 대한 loss를 평균을 낸 값이 된다.
 이러한 방식은 이미지 분류뿐 아니라 다른 분야에서도 적용되는 매우 일반적인 loss function이다.
 loss function은 한마디로 (x와 y) 쌍으로 이루어진 input 데이터를 넣고 paramter matrix W의 나쁜 정도를 측정하는 것이다.
 loss function을 통해 가능한 W의 경우들을 살펴보고 training set에 대해 가장 loss가 최소화되는 W를 구하게 된다.
 
 ### Loss function 예시 :: Multiclass SVM loss
 
-**11**:
+**11 loss function 예시**:
 
 이미지 분류에서 잘 작동하는 loss function 중 하나가 mutliclass svm loss이다.
 기계학습에서 SVM 이라고 하면 binary class에 대해서 적용하는데 class가 여러 개일 때는 multiclass라고 이름 붙인다.
+
++ $S_{y_i}$: true class score
++ $S_j$: false class score
 
 개별 training set에 대한 loss인 $L_i$는 어떻게 구하냐면, correct category의 score와 incorrect category의 score를 비교한다.
 이때 correct category가 incorrect category보다 그냥 큰 것이 아니라 특정 차이 이상으로 더 커야 한다.
@@ -95,7 +98,7 @@ loss function을 통해 가능한 W의 경우들을 살펴보고 training set에
 이렇게 하나의 input 이미지에 대해 모든 incorrect category와 비교해서 나온 모든 loss를 합하면 그게 $L_i$가 된다.
 그 다음에는 이렇게 나온 모든 loss를 N개로 나눠주면 final loss $L$이 된다.
 
-**12**:
+**12 Hinge loss 그래프 해석**:
 
 방금 표현한 SVM loss는 case by cas로 if, then statement로 나타냈는데, 이를 max function을 사용하면 한 줄로 나타낼 수 있다.
 
@@ -105,9 +108,9 @@ hinge라는 이름은 max function을 그래프로 나타냈을 때 나온 모�
 그래프는 x축의 값인 $S_{y_i}$가 x축 상에서 어떤 값이든 간에 $S_j$보다 safety margin보다 크면 loss를 나타내는 y축의 값은 항상 0이 되는 것을 나타내고 있다.
 true category에 대한 score가 커질수록 loss는 safety margin에 도달할 때까지 linear하게 줄어들고 그 후 loss는 0이 된다.
 
-**13~17**:
+**13~17 현재 classifier의 svm loss**:
 
-SVM loss 예시.
+방금 정의한 max function으로 표현한 loss function으로 현재 classifier의 svm loss를 계산해보자.
 고양이 이미지에 대해 true category score와 false category score를 비교해서 loss를 계산해보니 2.9가 나왔다.
 즉, 현재 input에 대한 classifier의 나쁜 정도는 2.9가 된다.
 car 이미지에 대한 loss는 0이고, frog 이미지에 대한 loss는 12.9가 된다.
