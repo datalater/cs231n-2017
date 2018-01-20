@@ -7,6 +7,65 @@
 
 ## 20180120 Study Notes
 
+**40~46**:
+
++ SVM의 score == unnormalized log probabilities of the classes
++ unnormalized : 정규화되지 않았다 == 합이 1이 아니다 (sum to 1이 아니다).
+
+**48**:
+
++ Q2: -log(1/c) = log(c)
+
+**51**:
+
++ probability mass
+
+**58**:
+
++ SOTA : state-of-the-art
+
+**60**:
+
++ 수치 미분 (numerical gradient) : 컴퓨터 프로그래밍 미분 (h에 매우 작은 값을 할당해서 계산)
++ 해석 미분 (analytic gradient) : $y=x^{2} \rightarrow \frac{dy}{dx} = 2x$
+
+**70**:
+
++ 변수가 여러 개 일때, 특정 변수에 대해서 편미분하는 것 = 라운드
+
+**72**:
+
++ 수치 미분 (numerical gradient) : 근사값이고 매우 느리다.
++ 해석 미분 (analytic gradient) : 정확한 값이고 매우 빠르다. 식이 복잡해지면 에러가 발생할 가능성이 있다. 그래서 gradient check할 때 수치 미분을 이용한다.
+
+권장하는 gradient check 방법
+
++ 안 권장 : $\frac{f(x+h) - f(x)}{h} $
++ 권장: $\frac{f(x+h) - f(x-h)}{2h}$
+  + 이유 : `@@@question`
+
+**76**:
+
++ 이미지 간의 "상관관계" 때문에 batch로 샘플링해서 계산하든, 전체를 구해서 데이터만큼 나누든 값은 비슷해진다.
++ minibatch 개수가 2의 제곱인 이유는 GPU를 이용할 때 남는 공간 없이 효율적으로 사용하기 위함이다.
+
+**82**:
+
++ edge를 linear classifier에 넣는다.
+
+**84**:
+
++ ConvNets에서는 여러 개의 linear classifier를 사용해서 업데이트한다.
++ 요즘에는 end-to-end 방식으로 한다.
+
+**기술 부채**:
+
+1. cross entropy 개념
+2. mini-batch를 2의 n제곱으로 하는 이유
+
+**END**
+
+
 ---
 
 ## L03 Loss Functions and Optimization
