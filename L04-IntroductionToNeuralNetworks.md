@@ -67,12 +67,49 @@ backpropagation은 모든 변수에 대한 gradient를 계산하기 위해 계�
 예를 들면 CNN에서도 매우 유용합니다.
 매우 복잡해서 input이 수많은 layer를 통과하면서 여러 번의 변형을 거쳐야 최종 loss가 나옵니다.
 
-**12**:
+**12-23**:
 
 backpropagation은 어떻게 작동할까요?
 아주 간단한 예제로 살펴보겠습니다.
 
-`@@@resume: 5:58`
+1. $f = (x+y)z$
++ 함수가 있으면 먼저 계산 그래프로 나타냅니다.
+2. $q = x + y$, $f = qz$
++ 중간에 계산되는 값에 변수 이름을 부여하고 식으로 나타냅니다.
+3. $\frac{\partial q}{\partial x} = 1$, $\frac{\partial q}{\partial y} = 1$, $\frac{\partial f}{\partial q} = z$, $\frac{\partial f}{\partial z} = q$
++ 중간 변수의 각 입력값에 대한(ex. gradient of q w.r.t. x and y) gradient를 구합니다.
+4. $\frac{df}{dx} = \frac{\partial f}{\partial q} \cdot \frac{\partial q}{\partial x}$, $\frac{df}{dy} = \frac{\partial f}{\partial q} \cdot \frac{\partial q}{\partial y}$
++ 최종 출력부터 차례대로 chain rule을 recursive하게 적용해서 각 입력 변수에 대한 grdient를 계산합니다.
++ 입력 변수가 중간 변수를 거쳐야 하는 최종 출력에 도달할 경우 chain rule을 적용합니다.
++ 예를 들어, $y$가 $f$에 미치는 영향을 계산하려면 $(x+y)$가 $f$에 미치는 영향을 계산하고 $y$가 $(x+y)$에 미치는 영향을 계산한 후 chain rule에 근거하여 서로 곱하면 된다.
+
+**24-29 upstream gradient $\times$ local gradient**:
+
+computational graph 관점에서 보면 기본 단위를 중간 변수로 잡을 수 있다.
+중간 변수는 항상 입력 변수 $x$와 $y$가 있고 계산 노드 $f$가 있고 출력 변수 $z$가 있다고 일반화할 수 있다.
+출력 변수 $z$는 다음 노드의 입력 변수가 된다.
+이렇게 계산 그래프의 기본 단위를 정의한 후 다음과 같이 backpropagation을 유도할 수 있다.
+
+1. $\left[\frac{\partial z}{\partial x}, \frac{\partial z}{\partial y}\right]$
++ 출력 변수($z$)의 각 입력 변수($x$,$y$)에 대한 local gradient를 구한다.
+2. $\left[\frac{\partial L}{\partial z} \times \frac{\partial z}{\partial x}, \frac{\partial L}{\partial z} \times \frac{\partial z}{\partial y}\right]$
++ 다음 노드의 출력 변수($L$)의 현재 노드의 입력 변수($x$,$y$)에 대한 gradient를 구한다.
++ 중간 변수($z$)를 거쳐야 하므로 chain rule에 근거하여 gradient를 곱셉한다.
++ 의미로 정리하면 upstream gradient $\times$ local gradient가 된다.
+
+**30-43 backpropagation through more complex example**:
+
+`@@@resume : 20:40~`
+
+upstream gradient와 local gradient를 구해서 차례대로 backpropagation을 하는 과정이 곧 전체 함수의 입력 변수에 대한 analytic gradient를 구한 것이다.
+
+**44**:
+
+computational graph를 그릴 때 여러 계산 노드를 압축시켜서 하나의 노드로 만들어서 표현할 수도 있다.
+예를 들면 sigmoid 함수값을 계산하려면 4개의 개별 계산 노드를 거쳐야 하는데, 그냥 sigmoid 함수 통째로 1개의 계산 노드로 표현할 수도 있다.
+
+`@@@resume : 26:30~`
+
 
 
 
