@@ -1,11 +1,96 @@
-ⓒ 2017 JMC
+ⓒ 2018 JMC
 
 **NB Viewer** : http://nbviewer.jupyter.org/github/datalater/cs231n-2017/blob/master/L04-IntroductionToNeuralNetworks.ipynb
 
 ---
 
+## NEXT
+
++ L05 CNN
++ L06 Training Neural Network PartI
+
+---
+
 ## 20180127 Study Notes
 
+**4**:
+
++ 구글 클라우드 K80: GTX-1080의 90% 성능 정도 나옴
+
+**7**:
+
++ Numerical gradient : 도함수에 $h=e-4(=10^{-4})$를 넣으면 괜찮음(by Richard Socher). 더 작은 값을 넣으면 overflow 발생할 수 있음.
++ Analytic gradient : $y=x^{2} \rightarrow dy = 2x$
+
+**13**:
+
++ 편미분 : 다른 변수는 independent라고 가정하고 특정 변수에 대해서 미분하는 것 (ex. 함수의 변수로써 x와 y가 있을 때 y는 x의 변수가 아니라고 가정하고 x에 대해서 미분하는 것)
++ $\partial$ : [라운드]라고 읽음
+
+**31-43**:
+
++ input 변화시키는 경우 : 이미지의 경우에는 input을 변화시키는 경우가 거의 없으나 word vector를 만들 때는 input을 변화시킨다.
+
+**44-45**:
+
++ sigmoid 함수의 미분을 backpropagation으로 확인해보자.
++ sigmoid 함수: sigmoid 함수는 y=0.5를 threshold로 삼을 수 있기 때문에 이진 분류에 많이 쓴다.
+
+**46-50**:
+
++ max 함수 관련 : $relu = max(x, 0)$이기 때문에 relu function을 적용하면 0보다 큰 값에 gradient를 주게 된다.
+
+**1-52 comment**:
+
++ backpropagation 계산은 프레임워크가 다 해주므로 속속들이 알 필요는 없다.
++ 그러나 텐서플로를 쓰려면 계산 그래프를 머릿속으로 그릴 줄은 알아야 한다.
+
+**기술부채 해결 - cross entropy**:
+
++ 볼츠만 엔트로피 =~ 열역학 제2법칙 엔트로피
++ 엔트로피 : 무질서도
+  + 물체가 N개 있고 상자가 n1, n2, .., ni개 있을때 물체가 위치하는 경우의 수를 multiplicity라고 한다.
+  + multiplicity $W = N!/\Pi_{i=1}{n_i}$
+  + entropy $W = \frac{1}{N}ln(W)$ (W를 자연로그를 취해서 평균을 낸 것)
+
++ MLE :
++ cross entropy를 써야 하는 이유: 확률값으로 loss를 구하려면 softmax 이후에 cross entropy를 거쳐야만 한다.
+  + prediction score의 성격이 확률로 변경이 되면 softmax layer를 거쳐서 끝나면 안되고 추가로 cross-entropy를 거쳐야만 ground truth와 prediction의 차이를 구할 수 있고, 그래야 느리지 않게 수렴이 된다.
+  + cross entropy를 거치지 않으면 sigmoid 함수가 남게 되고 sigmoid 함수를 미분하면 그 미분 값의 최대값이 1/4이 된다.
+  + 즉 러닝레이트가 1/4로 감소되므로 학습이 매우 느리게 수렴하게 된다.
+
+**기술부채 해결 - cross entropy 요약**:
+
++ cross entropy를 써야 하는 이유: 확률값으로 loss를 구하려면 softmax 이후에 cross entropy를 거쳐야만 한다.
+
+**57**:
+
++ Q2. what does it look like?
++ 4096 차원 diagonal 행렬만 남는다.
++ 결국 정말 필요한 값은 4096 차원 칼럼(또는 로우) 벡터이다.
+
+**68**:
+
++ $\triangledown_Wf = 2q \cdot x^{T}$를 공식처럼 외워서 쓰면 된다!
+
+**73**:
+
++ $\triangledown_xf =  2W^{T} \cdot q$를 공식처럼 외워서 쓰면 된다!
+
+**84**:
+
++ 2-layer neural network : relu activation 적용한 것
+
+**다음주 실습 과제**:
+
++ 3-layer neural net 넘파이로 짜기 (과제 가이드를 슬랙에 올릴 예정)
+
+**기술부채 - 배치 사이즈 2의 자승으로 하는 이유**:
+
++ gpu는 병렬 연산을 위한 것. NVIDA에서는 기본 단위가 thread 4개를 씀. 이 단위를 SP라고 함. SM은 SP가 8개로 구성된 것, 즉 thread가 32개 있음. GPU 연산을 배치할 때 2의 자승으로 하지 않으면 놀리는 SM이 있게 됨.
+
+
+**END**
 
 ---
 
