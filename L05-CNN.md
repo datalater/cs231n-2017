@@ -8,6 +8,26 @@ http://nbviewer.jupyter.org/github/datalater/cs231n-2017/blob/master/L05-CNN.ipy
 
 ## 20180203 Study Notes
 
+**39**:
+
++ filter와 가장 비슷한 부분이 activation map에서 하얀색으로 드러난다.
++ CNN에서 쓰는 convolution은 사실 correlation이고 신호처리에서 사용하는 기존의 convolution은 flipped correlation이다.
+
+**40**:
+
++ FC : 선형분류기 (separable linear classifier)
+
+**55**:
+
++ 입력 이미지 픽셀 사이를 패딩하는 기법도 있는데 그것을 dilated CNN이라고 한다.
++ 픽셀 사이에 패딩을 하면 이미지를 더 넓게 볼 수 있는 장점이 있다.
+
+**72**:
+
++ max-pooling : 인식 가능한 정도로 feature를 추출하고 연산량을 줄인다.
++ global average pooling : attention 찾을 때 쓰는 풀링 방법. 개를 찾는 문제에서 어디에서 개를 찾고 있는 것인지 확인할 때 쓴다.
+
+
 **END**
 
 ---
@@ -284,18 +304,25 @@ Q. whats the output volume size below?
 A. 32x32x10
 
 + (32 + 2 * 2 - 5) / 1 + 1 = 32 spatially
+
 + so, 32x32x10
 
 Q. what's the number of parameters in this layer?
 
 A. each filter has 5 * 5 * 3 weights + 1 bias = 76, so 76 * 10 = 3
 
-**62: Common numbers of the Conv Layer**
+**61-62: Common numbers of the Conv Layer**
 
 + 필터 사이즈 : 3 or 5
 + 스트라이드 : 1 or 2
 + 필터 개수 : powers of 2, e.g. 32, 64, 128, 512
 + 패딩 사이즈 : whatever will preserve your spatial extent
+
+parameter sharing
+
++ parameter sharing : activation map을 구성하는 모든 뉴런이 하나의 filter로 만들어진다 == 하나의 filter의 parameter를 share 해서 activation map이 만들어진다.
++ fully connected layer는 convolution layer와 달리 parameter를 share 하지 않고 각기 다른 parameter를 사용하므로 parameter 수가 훨씬 더 많다.
+
 
 **63: Does 1x1 convolution make sense?**
 
