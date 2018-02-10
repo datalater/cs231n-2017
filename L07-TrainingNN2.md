@@ -6,7 +6,28 @@ http://nbviewer.jupyter.org/github/datalater/cs231n-2017/blob/master/L07-Trainin
 
 ---
 
+## 20180210 NEXT
+
++ TensorFlow : 조민철
+
 ## 20180210 Study Notes
+
+**25**:
+
+Nesterov에서 gradient는 일종의 correction 기능을 한다.
+
+**27**:
+
+correction
+
+**32**:
+
+RMSProp : decay_rate
+
+(사진)
+
+**34**:
+
 
 
 **END**
