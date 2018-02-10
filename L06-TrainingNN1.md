@@ -6,6 +6,11 @@ http://nbviewer.jupyter.org/github/datalater/cs231n-2017/blob/master/L05-CNN.ipy
 
 ---
 
+## NEXT
+
++ L07 앞 부분 - optimization 수학적 부분
++ L07 뒷 부분 - 드랍아웃, 앙상블
+
 ## 20180203 Study Notes
 
 **시각세포**:
