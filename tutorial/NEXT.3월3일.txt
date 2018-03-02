@@ -1,0 +1,9 @@
+L09 CNN Architectures
+
+AlexNet: 김지수
+VGG: 조민철
+GoogLeNet: 최승원
+ResNet: 석영수
+Recent Networks: 엄상현
+
+*논문 읽어보기
